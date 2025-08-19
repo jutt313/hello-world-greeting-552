@@ -2,10 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { MetricCards } from '@/components/dashboard/MetricCards';
 import { ChartsSection } from '@/components/dashboard/ChartsSection';
-import { ProjectsList } from '@/components/dashboard/ProjectsList';
+import { ProjectsTable } from '@/components/dashboard/ProjectsTable';
 import { User, Session } from '@supabase/supabase-js';
 
 const Dashboard = () => {
@@ -41,6 +40,11 @@ const Dashboard = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate('/auth');
+  };
 
   if (loading) {
     return (
@@ -80,12 +84,40 @@ const Dashboard = () => {
       </div>
 
       <div className="relative z-10">
-        <DashboardHeader user={user} />
+        {/* Simple Logo Header */}
+        <div className="px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center"
+                   style={{ 
+                     background: 'linear-gradient(135deg, hsl(195, 100%, 50%), hsl(180, 100%, 60%))',
+                     boxShadow: '0 0 20px hsla(195, 100%, 50%, 0.3)'
+                   }}>
+                <span className="text-white font-bold text-sm">XI</span>
+              </div>
+              <h1 className="text-xl font-bold" style={{ color: 'hsl(0, 0%, 95%)' }}>
+                Code-XI
+              </h1>
+            </div>
+            
+            <button
+              onClick={handleSignOut}
+              className="text-sm px-4 py-2 rounded-lg transition-colors"
+              style={{ 
+                color: 'hsl(220, 15%, 70%)',
+                background: 'hsla(230, 30%, 18%, 0.8)',
+                border: '1px solid hsla(220, 40%, 30%, 0.3)'
+              }}
+            >
+              Sign Out
+            </button>
+          </div>
+        </div>
         
-        <main className="container mx-auto px-6 py-8 space-y-8">
+        <main className="container mx-auto px-6 py-4 space-y-6">
           <MetricCards />
           <ChartsSection />
-          <ProjectsList />
+          <ProjectsTable />
         </main>
       </div>
     </div>

@@ -1,13 +1,15 @@
 
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { FolderOpen, Activity, Phone, Gem } from 'lucide-react';
 
 interface MetricData {
   totalProjects: number;
   activeSessions: number;
   dailyApiCalls: number;
   platformCredits: number;
+  projectsTrend: string;
+  sessionsTrend: string;
+  callsTrend: string;
 }
 
 export const MetricCards: React.FC = () => {
@@ -16,6 +18,9 @@ export const MetricCards: React.FC = () => {
     activeSessions: 0,
     dailyApiCalls: 0,
     platformCredits: 0,
+    projectsTrend: '',
+    sessionsTrend: '',
+    callsTrend: '',
   });
   const [loading, setLoading] = useState(true);
   const [animatedValues, setAnimatedValues] = useState<MetricData>({
@@ -23,6 +28,9 @@ export const MetricCards: React.FC = () => {
     activeSessions: 0,
     dailyApiCalls: 0,
     platformCredits: 0,
+    projectsTrend: '',
+    sessionsTrend: '',
+    callsTrend: '',
   });
 
   useEffect(() => {
@@ -32,20 +40,38 @@ export const MetricCards: React.FC = () => {
 
   const fetchMetrics = async () => {
     try {
-      const [projectsRes, sessionsRes, analyticsRes, profileRes] = await Promise.all([
-        supabase.from('projects').select('id', { count: 'exact' }),
-        supabase.from('chat_sessions').select('id', { count: 'exact' }).eq('is_active', true),
-        supabase.from('project_analytics').select('api_calls_count').eq('date', new Date().toISOString().split('T')[0]),
-        supabase.from('users_profiles').select('credits_remaining').single()
+      const today = new Date().toISOString().split('T')[0];
+      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+      // Get user ID
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const [projectsRes, sessionsRes, analyticsRes, profileRes, lastWeekProjectsRes, yesterdayCallsRes] = await Promise.all([
+        supabase.from('projects').select('id', { count: 'exact' }).eq('owner_id', user.id),
+        supabase.from('chat_sessions').select('id', { count: 'exact' }).eq('is_active', true).eq('user_id', user.id),
+        supabase.from('project_analytics').select('api_calls_count').eq('date', today),
+        supabase.from('users_profiles').select('credits_remaining').eq('id', user.id).single(),
+        supabase.from('projects').select('id', { count: 'exact' }).eq('owner_id', user.id).lte('created_at', weekAgo),
+        supabase.from('project_analytics').select('api_calls_count').eq('date', yesterday)
       ]);
 
       const dailyCalls = analyticsRes.data?.reduce((sum, record) => sum + (record.api_calls_count || 0), 0) || 0;
+      const yesterdayCalls = yesterdayCallsRes.data?.reduce((sum, record) => sum + (record.api_calls_count || 0), 0) || 0;
+      const currentProjects = projectsRes.count || 0;
+      const lastWeekProjects = lastWeekProjectsRes.count || 0;
+      const weeklyGrowth = currentProjects - lastWeekProjects;
+      const callsChange = dailyCalls - yesterdayCalls;
 
       const newMetrics = {
-        totalProjects: projectsRes.count || 0,
+        totalProjects: currentProjects,
         activeSessions: sessionsRes.count || 0,
         dailyApiCalls: dailyCalls,
         platformCredits: profileRes.data?.credits_remaining || 0,
+        projectsTrend: weeklyGrowth > 0 ? `+${weeklyGrowth} this week` : weeklyGrowth < 0 ? `${weeklyGrowth} this week` : 'no change',
+        sessionsTrend: `${sessionsRes.count || 0} running`,
+        callsTrend: callsChange > 0 ? `+${callsChange} today` : callsChange < 0 ? `${callsChange} today` : 'same as yesterday',
       };
 
       setMetrics(newMetrics);
@@ -53,12 +79,14 @@ export const MetricCards: React.FC = () => {
       setLoading(false);
     } catch (error) {
       console.error('Error fetching metrics:', error);
-      // Set default values on error
       const defaultMetrics = {
         totalProjects: 0,
         activeSessions: 0,
         dailyApiCalls: 0,
         platformCredits: 1000,
+        projectsTrend: 'no data',
+        sessionsTrend: '0 running',
+        callsTrend: 'no data',
       };
       setMetrics(defaultMetrics);
       setAnimatedValues(defaultMetrics);
@@ -67,8 +95,8 @@ export const MetricCards: React.FC = () => {
   };
 
   const animateCounters = (targetMetrics: MetricData) => {
-    const duration = 1500;
-    const steps = 60;
+    const duration = 1200;
+    const steps = 50;
     const stepDuration = duration / steps;
 
     let currentStep = 0;
@@ -82,6 +110,9 @@ export const MetricCards: React.FC = () => {
         activeSessions: Math.floor(targetMetrics.activeSessions * easeOutProgress),
         dailyApiCalls: Math.floor(targetMetrics.dailyApiCalls * easeOutProgress),
         platformCredits: Math.floor(targetMetrics.platformCredits * easeOutProgress),
+        projectsTrend: targetMetrics.projectsTrend,
+        sessionsTrend: targetMetrics.sessionsTrend,
+        callsTrend: targetMetrics.callsTrend,
       });
 
       if (currentStep >= steps) {
@@ -101,42 +132,26 @@ export const MetricCards: React.FC = () => {
     return () => supabase.removeChannel(channel);
   };
 
-  const getCreditColor = (credits: number) => {
-    if (credits > 500) return 'hsl(120, 60%, 50%)';
-    if (credits > 100) return 'hsl(45, 100%, 60%)';
-    return 'hsl(0, 70%, 60%)';
-  };
-
   const cards = [
     {
-      title: 'TOTAL PROJECTS',
+      title: 'Total Projects',
       value: animatedValues.totalProjects,
-      subtitle: '+2 this week',
-      icon: FolderOpen,
-      color: 'hsl(195, 100%, 50%)',
+      subtitle: animatedValues.projectsTrend,
     },
     {
-      title: 'ACTIVE SESSIONS',
+      title: 'Active Sessions',
       value: animatedValues.activeSessions,
-      subtitle: '2 running',
-      icon: Activity,
-      color: 'hsl(120, 60%, 50%)',
-      pulse: true,
+      subtitle: animatedValues.sessionsTrend,
     },
     {
-      title: 'DAILY API CALLS',
+      title: 'Daily API Calls',
       value: animatedValues.dailyApiCalls,
-      subtitle: '+23 today',
-      icon: Phone,
-      color: 'hsl(260, 60%, 60%)',
+      subtitle: animatedValues.callsTrend,
     },
     {
-      title: 'PLATFORM CREDITS',
+      title: 'Platform Credits',
       value: animatedValues.platformCredits,
       subtitle: 'remaining',
-      icon: Gem,
-      color: getCreditColor(animatedValues.platformCredits),
-      sparkle: true,
     },
   ];
 
@@ -146,8 +161,7 @@ export const MetricCards: React.FC = () => {
         {[1, 2, 3, 4].map((i) => (
           <div key={i} className="rounded-xl p-6 animate-pulse"
                style={{
-                 background: 'hsla(230, 30%, 15%, 0.7)',
-                 backdropFilter: 'blur(20px)',
+                 background: 'hsla(230, 30%, 18%, 0.8)',
                  border: '1px solid hsla(220, 40%, 30%, 0.3)',
                }}>
             <div className="h-4 bg-gray-600 rounded mb-4"></div>
@@ -163,38 +177,28 @@ export const MetricCards: React.FC = () => {
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
       {cards.map((card, index) => (
         <div key={card.title} 
-             className="group rounded-xl p-6 cursor-pointer transition-all duration-300 hover:scale-105"
+             className="rounded-xl p-5 cursor-pointer transition-all duration-300 hover:scale-105 text-left"
              style={{
-               background: 'hsla(230, 30%, 15%, 0.7)',
-               backdropFilter: 'blur(20px)',
+               background: 'hsla(230, 30%, 18%, 0.8)',
                border: '1px solid hsla(220, 40%, 30%, 0.3)',
                animationDelay: `${index * 100}ms`,
              }}
              onMouseEnter={(e) => {
-               e.currentTarget.style.boxShadow = `0 0 50px hsla(195, 100%, 50%, 0.3)`;
-               e.currentTarget.style.borderColor = 'hsla(195, 100%, 50%, 0.5)';
+               e.currentTarget.style.boxShadow = `0 0 30px hsla(195, 100%, 50%, 0.2)`;
+               e.currentTarget.style.borderColor = 'hsla(195, 100%, 50%, 0.4)';
              }}
              onMouseLeave={(e) => {
                e.currentTarget.style.boxShadow = 'none';
                e.currentTarget.style.borderColor = 'hsla(220, 40%, 30%, 0.3)';
              }}>
           
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium tracking-wider" 
-                style={{ color: 'hsl(220, 15%, 70%)' }}>
-              {card.title}
-            </h3>
-            <div className={`p-2 rounded-lg ${card.pulse ? 'animate-pulse' : ''}`}
-                 style={{ 
-                   background: `${card.color}20`,
-                   color: card.color,
-                 }}>
-              <card.icon size={20} className={card.sparkle ? 'animate-bounce' : ''} />
-            </div>
-          </div>
+          <h3 className="text-sm font-medium tracking-wide mb-3" 
+              style={{ color: 'hsl(220, 15%, 70%)' }}>
+            {card.title}
+          </h3>
 
           <div className="mb-2">
-            <span className="text-3xl font-bold tabular-nums" 
+            <span className="text-2xl font-bold tabular-nums" 
                   style={{ color: 'hsl(0, 0%, 95%)' }}>
               {card.value.toLocaleString()}
             </span>
