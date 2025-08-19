@@ -704,6 +704,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          credits_remaining: number
           full_name: string | null
           id: string
           subscription_tier: Database["public"]["Enums"]["subscription_tier"]
@@ -715,6 +716,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          credits_remaining?: number
           full_name?: string | null
           id: string
           subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
@@ -726,6 +728,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          credits_remaining?: number
           full_name?: string | null
           id?: string
           subscription_tier?: Database["public"]["Enums"]["subscription_tier"]

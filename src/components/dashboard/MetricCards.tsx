@@ -53,6 +53,15 @@ export const MetricCards: React.FC = () => {
       setLoading(false);
     } catch (error) {
       console.error('Error fetching metrics:', error);
+      // Set default values on error
+      const defaultMetrics = {
+        totalProjects: 0,
+        activeSessions: 0,
+        dailyApiCalls: 0,
+        platformCredits: 1000,
+      };
+      setMetrics(defaultMetrics);
+      setAnimatedValues(defaultMetrics);
       setLoading(false);
     }
   };
