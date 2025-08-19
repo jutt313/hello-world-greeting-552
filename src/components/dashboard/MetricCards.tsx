@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -64,11 +63,32 @@ export const MetricCards: React.FC = () => {
       const weeklyGrowth = currentProjects - lastWeekProjects;
       const callsChange = dailyCalls - yesterdayCalls;
 
+      // Fix platform credits - handle when no profile exists vs when profile has real data
+      let creditsRemaining = 0;
+      if (profileRes.data) {
+        creditsRemaining = profileRes.data.credits_remaining;
+      } else {
+        // If no profile exists, create one with default credits
+        const { data: newProfile, error: createError } = await supabase
+          .from('users_profiles')
+          .insert({
+            id: user.id,
+            username: user.email?.split('@')[0] || 'user',
+            credits_remaining: 1000
+          })
+          .select('credits_remaining')
+          .single();
+        
+        if (!createError && newProfile) {
+          creditsRemaining = newProfile.credits_remaining;
+        }
+      }
+
       const newMetrics = {
         totalProjects: currentProjects,
         activeSessions: sessionsRes.count || 0,
         dailyApiCalls: dailyCalls,
-        platformCredits: profileRes.data?.credits_remaining || 0,
+        platformCredits: creditsRemaining,
         projectsTrend: weeklyGrowth > 0 ? `+${weeklyGrowth} this week` : weeklyGrowth < 0 ? `${weeklyGrowth} this week` : 'no change',
         sessionsTrend: `${sessionsRes.count || 0} running`,
         callsTrend: callsChange > 0 ? `+${callsChange} today` : callsChange < 0 ? `${callsChange} today` : 'same as yesterday',

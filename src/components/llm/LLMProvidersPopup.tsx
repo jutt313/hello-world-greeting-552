@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -26,8 +25,8 @@ interface Provider {
 interface DatabaseProvider {
   id: string;
   provider_name: string;
-  selected_models: any; // This will be Json type from database
-  provider_config: any; // This will be Json type from database  
+  selected_models: any;
+  provider_config: any;
   created_at: string;
 }
 
@@ -90,7 +89,7 @@ const LLMProvidersPopup: React.FC<LLMProvidersPopupProps> = ({ isOpen, onClose }
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-2xl rounded-xl">
+        <DialogContent className="max-w-5xl min-h-[70vh] rounded-xl">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold">LLM Providers</DialogTitle>
           </DialogHeader>

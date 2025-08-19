@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -12,15 +11,15 @@ interface DocumentationPopupProps {
 const DocumentationPopup: React.FC<DocumentationPopupProps> = ({ isOpen, onClose }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl rounded-xl max-h-[90vh]">
+      <DialogContent className="max-w-5xl min-h-[70vh] rounded-xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold flex items-center gap-2">
             <FileText className="w-5 h-5" />
-            CodeXI Documentation
+            Code-XI Documentation
           </DialogTitle>
         </DialogHeader>
         
-        <ScrollArea className="h-[70vh] pr-4">
+        <ScrollArea className="h-[60vh] pr-4">
           <div className="space-y-8">
             {/* Getting Started */}
             <section className="space-y-4">
@@ -29,13 +28,13 @@ const DocumentationPopup: React.FC<DocumentationPopupProps> = ({ isOpen, onClose
                 Getting Started
               </h2>
               <div className="space-y-3 text-sm">
-                <p>Welcome to CodeXI, the AI-powered development platform that helps you build, deploy, and scale applications effortlessly.</p>
+                <p>Welcome to Code-XI, the AI-powered development platform that helps you build, deploy, and scale applications effortlessly.</p>
                 
                 <div className="bg-muted/50 rounded-lg p-4">
                   <h3 className="font-medium mb-2">Quick Setup Steps:</h3>
                   <ol className="list-decimal list-inside space-y-1">
                     <li>Configure your LLM providers in the profile dropdown</li>
-                    <li>Install the CodeXI CLI tool</li>
+                    <li>Install the Code-XI CLI tool</li>
                     <li>Authenticate your CLI with the web platform</li>
                     <li>Start your first AI-powered project</li>
                   </ol>
@@ -50,7 +49,7 @@ const DocumentationPopup: React.FC<DocumentationPopupProps> = ({ isOpen, onClose
                 CLI Installation
               </h2>
               <div className="space-y-3 text-sm">
-                <p>The CodeXI CLI allows you to interact with AI agents directly from your terminal.</p>
+                <p>The Code-XI CLI allows you to interact with AI agents directly from your terminal.</p>
                 
                 <div className="bg-card border rounded-lg p-4">
                   <h3 className="font-medium mb-2">Installation:</h3>
@@ -75,7 +74,7 @@ const DocumentationPopup: React.FC<DocumentationPopupProps> = ({ isOpen, onClose
                 AI Agents
               </h2>
               <div className="space-y-3 text-sm">
-                <p>CodeXI provides specialized AI agents for different development tasks:</p>
+                <p>Code-XI provides specialized AI agents for different development tasks:</p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-card border rounded-lg p-4">
@@ -125,7 +124,7 @@ const DocumentationPopup: React.FC<DocumentationPopupProps> = ({ isOpen, onClose
                 <div className="bg-muted/50 rounded-lg p-4">
                   <h3 className="font-medium mb-2">Typical Project Flow:</h3>
                   <ol className="list-decimal list-inside space-y-2">
-                    <li><strong>Project Creation:</strong> Use CLI to link local repo/folder to CodeXI</li>
+                    <li><strong>Project Creation:</strong> Use CLI to link local repo/folder to Code-XI</li>
                     <li><strong>Agent Selection:</strong> Choose appropriate AI agents for your project</li>
                     <li><strong>LLM Configuration:</strong> Select and configure your preferred language models</li>
                     <li><strong>Development:</strong> Agents read/write code, analyze repositories, generate documentation</li>
