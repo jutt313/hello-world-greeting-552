@@ -1,129 +1,49 @@
 
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { MetricCards } from '@/components/dashboard/MetricCards';
-import { ChartsSection } from '@/components/dashboard/ChartsSection';
-import { ProjectsTable } from '@/components/dashboard/ProjectsTable';
-import { User, Session } from '@supabase/supabase-js';
+import React from "react";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import MetricCards from "@/components/dashboard/MetricCards";
+import ChartsSection from "@/components/dashboard/ChartsSection";
+import ProjectsTable from "@/components/dashboard/ProjectsTable";
+import LLMProvidersSection from "@/components/llm/LLMProvidersSection";
 
 const Dashboard = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-        
-        if (!session?.user) {
-          navigate('/auth');
-        }
-      }
-    );
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-      
-      if (!session?.user) {
-        navigate('/auth');
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate('/auth');
-  };
-
-  if (loading) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 mx-auto mb-4"></div>
-          <p style={{ color: 'hsl(220, 15%, 70%)' }}>Loading Dashboard...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="fixed inset-0 w-full h-full overflow-auto">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+      <div className="absolute inset-0 bg-black/20" />
       
-      {/* Animated background orbs - positioned for corners */}
+      {/* Animated background orbs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        {/* Top-right lighter glow */}
-        <div className="absolute -top-20 -right-20 w-96 h-96 rounded-full opacity-30 animate-pulse"
-             style={{
-               background: 'radial-gradient(circle, hsl(195, 100%, 50%) 0%, hsl(180, 100%, 60%) 30%, transparent 70%)',
-               filter: 'blur(60px)',
-               animationDuration: '4s'
-             }}></div>
-        
-        {/* Bottom-left lighter glow */}
-        <div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full opacity-25 animate-pulse"
-             style={{
-               background: 'radial-gradient(circle, hsl(180, 100%, 60%) 0%, hsl(195, 100%, 50%) 30%, transparent 70%)',
-               filter: 'blur(50px)',
-               animationDuration: '6s',
-               animationDelay: '2s'
-             }}></div>
-
-        {/* Center darker area enhancement */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full rounded-full opacity-35"
-             style={{
-               background: 'radial-gradient(circle, transparent 0%, hsl(230, 95%, 6%) 60%, transparent 100%)',
-               filter: 'blur(100px)'
-             }}></div>
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-pulse delay-2000" />
       </div>
 
-      <div className="relative z-10 min-h-full">
-        {/* Header with larger Code-XI logo */}
-        <div className="px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-6">
-              <div className="w-16 h-16 rounded-xl flex items-center justify-center"
-                   style={{ 
-                     background: 'linear-gradient(135deg, hsl(195, 100%, 50%), hsl(180, 100%, 60%))',
-                     boxShadow: '0 0 30px hsla(195, 100%, 50%, 0.5)'
-                   }}>
-                <span className="text-white font-bold text-xl">XI</span>
-              </div>
-              <h1 className="text-3xl font-bold" style={{ color: 'hsl(0, 0%, 95%)' }}>
-                Code-XI
-              </h1>
-            </div>
+      <SidebarProvider>
+        <div className="flex min-h-screen w-full">
+          <AppSidebar />
+          <div className="flex-1 flex flex-col relative z-10">
+            <DashboardHeader />
             
-            <button
-              onClick={handleSignOut}
-              className="text-sm px-4 py-2 rounded-lg transition-colors hover:bg-opacity-80"
-              style={{ 
-                color: 'hsl(220, 15%, 70%)',
-                background: 'hsla(230, 30%, 18%, 0.6)',
-                border: '1px solid hsla(220, 40%, 30%, 0.4)'
-              }}
-            >
-              Sign Out
-            </button>
+            <main className="flex-1 p-6 space-y-8 overflow-auto">
+              <div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-2">
+                  Dashboard
+                </h1>
+                <p className="text-slate-400">
+                  Welcome back! Here's an overview of your CodeXI projects.
+                </p>
+              </div>
+
+              <MetricCards />
+              <ChartsSection />
+              <LLMProvidersSection />
+              <ProjectsTable />
+            </main>
           </div>
         </div>
-        
-        <main className="px-6 pb-6 space-y-6">
-          <MetricCards />
-          <ChartsSection />
-          <ProjectsTable />
-        </main>
-      </div>
+      </SidebarProvider>
     </div>
   );
 };

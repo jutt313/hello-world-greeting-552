@@ -347,8 +347,10 @@ export type Database = {
           created_at: string
           id: string
           is_active: boolean
+          provider_config: Json | null
           provider_name: Database["public"]["Enums"]["llm_provider_name"]
           rate_limit_per_minute: number | null
+          selected_models: Json | null
           user_id: string
         }
         Insert: {
@@ -357,8 +359,10 @@ export type Database = {
           created_at?: string
           id?: string
           is_active?: boolean
+          provider_config?: Json | null
           provider_name: Database["public"]["Enums"]["llm_provider_name"]
           rate_limit_per_minute?: number | null
+          selected_models?: Json | null
           user_id: string
         }
         Update: {
@@ -367,8 +371,10 @@ export type Database = {
           created_at?: string
           id?: string
           is_active?: boolean
+          provider_config?: Json | null
           provider_name?: Database["public"]["Enums"]["llm_provider_name"]
           rate_limit_per_minute?: number | null
+          selected_models?: Json | null
           user_id?: string
         }
         Relationships: [
@@ -377,6 +383,53 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      llm_usage_analytics: {
+        Row: {
+          cost: number
+          created_at: string
+          id: string
+          metadata: Json | null
+          model_name: string
+          provider_id: string
+          request_type: string
+          status: string
+          tokens_used: number
+          user_id: string
+        }
+        Insert: {
+          cost?: number
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          model_name: string
+          provider_id: string
+          request_type?: string
+          status?: string
+          tokens_used?: number
+          user_id: string
+        }
+        Update: {
+          cost?: number
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          model_name?: string
+          provider_id?: string
+          request_type?: string
+          status?: string
+          tokens_used?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "llm_usage_analytics_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "llm_providers"
             referencedColumns: ["id"]
           },
         ]
