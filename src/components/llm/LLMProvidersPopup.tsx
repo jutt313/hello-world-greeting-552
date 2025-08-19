@@ -23,6 +23,14 @@ interface Provider {
   created_at: string;
 }
 
+interface DatabaseProvider {
+  id: string;
+  provider_name: string;
+  selected_models: any; // This will be Json type from database
+  provider_config: any; // This will be Json type from database  
+  created_at: string;
+}
+
 const LLMProvidersPopup: React.FC<LLMProvidersPopupProps> = ({ isOpen, onClose }) => {
   const [providers, setProviders] = useState<Provider[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,7 +52,19 @@ const LLMProvidersPopup: React.FC<LLMProvidersPopupProps> = ({ isOpen, onClose }
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setProviders(data || []);
+      
+      // Transform database response to match our interface
+      const transformedProviders: Provider[] = (data as DatabaseProvider[])?.map(provider => ({
+        id: provider.id,
+        provider_name: provider.provider_name,
+        selected_models: Array.isArray(provider.selected_models) ? provider.selected_models : [],
+        provider_config: typeof provider.provider_config === 'object' && provider.provider_config !== null 
+          ? provider.provider_config as { credential_name: string }
+          : { credential_name: 'Unknown' },
+        created_at: provider.created_at
+      })) || [];
+
+      setProviders(transformedProviders);
     } catch (error) {
       toast({
         title: 'Error loading providers',
