@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle } from 'lucide-react';
 
 interface AddLLMProviderModalProps {
   isOpen: boolean;
@@ -37,7 +37,20 @@ const AddLLMProviderModal: React.FC<AddLLMProviderModalProps> = ({ isOpen, onClo
   const [isLoadingModels, setIsLoadingModels] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [apiTestPassed, setApiTestPassed] = useState(false);
+  const [testResult, setTestResult] = useState<string>('');
   const { toast } = useToast();
+
+  // Reset form when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setFormData({ credentialName: '', provider: '', apiKey: '' });
+      setAvailableModels([]);
+      setSelectedModels([]);
+      setApiTestPassed(false);
+      setTestResult('');
+    }
+  }, [isOpen]);
 
   const fetchModels = async () => {
     if (!formData.provider || !formData.apiKey) return;
@@ -50,6 +63,11 @@ const AddLLMProviderModal: React.FC<AddLLMProviderModalProps> = ({ isOpen, onClo
       
       if (response.error) throw new Error(response.error.message);
       setAvailableModels(response.data.models || []);
+      
+      toast({
+        title: 'Models Loaded',
+        description: `Found ${response.data.models?.length || 0} available models`,
+      });
     } catch (error) {
       toast({
         title: 'Error fetching models',
@@ -70,17 +88,23 @@ const AddLLMProviderModal: React.FC<AddLLMProviderModalProps> = ({ isOpen, onClo
         body: { 
           provider: formData.provider, 
           apiKey: formData.apiKey,
-          message: 'Hello from Code-XI, please respond to confirm this API key works'
+          message: 'Hello from CodeXI! Please respond briefly to confirm this API key works.'
         }
       });
       
       if (response.error) throw new Error(response.error.message);
       
+      setApiTestPassed(true);
+      setTestResult(response.data.response);
+      
       toast({
-        title: 'API Test Successful',
-        description: `Response: ${response.data.response}`,
+        title: 'API Test Successful!',
+        description: 'Your API key is working correctly.',
       });
     } catch (error) {
+      setApiTestPassed(false);
+      setTestResult('');
+      
       toast({
         title: 'API Test Failed',
         description: error instanceof Error ? error.message : 'API test failed',
@@ -92,10 +116,28 @@ const AddLLMProviderModal: React.FC<AddLLMProviderModalProps> = ({ isOpen, onClo
   };
 
   const handleSave = async () => {
-    if (!formData.credentialName || !formData.provider || !formData.apiKey || selectedModels.length === 0) {
+    if (!formData.credentialName || !formData.provider || !formData.apiKey) {
       toast({
         title: 'Missing Information',
-        description: 'Please fill all fields and select at least one model',
+        description: 'Please fill all fields',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!apiTestPassed) {
+      toast({
+        title: 'API Test Required',
+        description: 'Please test your API key before saving',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (selectedModels.length === 0) {
+      toast({
+        title: 'No Models Selected',
+        description: 'Please select at least one model',
         variant: 'destructive',
       });
       return;
@@ -124,7 +166,7 @@ const AddLLMProviderModal: React.FC<AddLLMProviderModalProps> = ({ isOpen, onClo
       if (error) throw error;
 
       toast({
-        title: 'LLM Provider Added',
+        title: 'Success!',
         description: `${formData.credentialName} has been saved successfully`,
       });
       
@@ -141,12 +183,6 @@ const AddLLMProviderModal: React.FC<AddLLMProviderModalProps> = ({ isOpen, onClo
     }
   };
 
-  useEffect(() => {
-    if (formData.provider && formData.apiKey) {
-      fetchModels();
-    }
-  }, [formData.provider, formData.apiKey]);
-
   const handleModelToggle = (model: string, checked: boolean) => {
     if (checked) {
       setSelectedModels([...selectedModels, model]);
@@ -157,7 +193,7 @@ const AddLLMProviderModal: React.FC<AddLLMProviderModalProps> = ({ isOpen, onClo
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md rounded-lg">
+      <DialogContent className="max-w-md rounded-xl">
         <DialogHeader>
           <DialogTitle>Add LLM Provider</DialogTitle>
         </DialogHeader>
@@ -175,7 +211,11 @@ const AddLLMProviderModal: React.FC<AddLLMProviderModalProps> = ({ isOpen, onClo
 
           <div>
             <Label htmlFor="provider">Provider</Label>
-            <Select value={formData.provider} onValueChange={(value) => setFormData({ ...formData, provider: value })}>
+            <Select value={formData.provider} onValueChange={(value) => {
+              setFormData({ ...formData, provider: value });
+              setApiTestPassed(false);
+              setTestResult('');
+            }}>
               <SelectTrigger>
                 <SelectValue placeholder="Select provider" />
               </SelectTrigger>
@@ -196,28 +236,48 @@ const AddLLMProviderModal: React.FC<AddLLMProviderModalProps> = ({ isOpen, onClo
               type="password"
               placeholder="sk-..."
               value={formData.apiKey}
-              onChange={(e) => setFormData({ ...formData, apiKey: e.target.value })}
+              onChange={(e) => {
+                setFormData({ ...formData, apiKey: e.target.value });
+                setApiTestPassed(false);
+                setTestResult('');
+              }}
             />
           </div>
 
           {formData.provider && formData.apiKey && (
-            <div className="flex gap-2">
-              <Button 
-                onClick={fetchModels} 
-                variant="outline" 
-                size="sm" 
-                disabled={isLoadingModels}
-              >
-                {isLoadingModels ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Fetch Models'}
-              </Button>
-              <Button 
-                onClick={testAPIKey} 
-                variant="outline" 
-                size="sm"
-                disabled={isTesting}
-              >
-                {isTesting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Test API'}
-              </Button>
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <Button 
+                  onClick={fetchModels} 
+                  variant="outline" 
+                  size="sm" 
+                  disabled={isLoadingModels}
+                >
+                  {isLoadingModels ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Fetch Models'}
+                </Button>
+                <Button 
+                  onClick={testAPIKey} 
+                  variant="outline" 
+                  size="sm"
+                  disabled={isTesting}
+                >
+                  {isTesting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Test API'}
+                </Button>
+              </div>
+
+              {apiTestPassed && (
+                <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                  <span className="text-sm text-green-500 font-medium">API test passed!</span>
+                </div>
+              )}
+
+              {testResult && (
+                <div className="p-3 bg-muted rounded-lg">
+                  <p className="text-sm text-muted-foreground">API Response:</p>
+                  <p className="text-sm font-medium">{testResult}</p>
+                </div>
+              )}
             </div>
           )}
 
@@ -241,7 +301,10 @@ const AddLLMProviderModal: React.FC<AddLLMProviderModalProps> = ({ isOpen, onClo
 
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={onClose}>Cancel</Button>
-            <Button onClick={handleSave} disabled={isSaving}>
+            <Button 
+              onClick={handleSave} 
+              disabled={isSaving || !apiTestPassed || selectedModels.length === 0}
+            >
               {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Provider'}
             </Button>
           </div>
