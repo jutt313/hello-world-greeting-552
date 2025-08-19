@@ -94,8 +94,9 @@ export const ChartsSection: React.FC = () => {
         {[1, 2, 3].map((i) => (
           <div key={i} className="rounded-xl p-6 animate-pulse"
                style={{
-                 background: 'hsla(230, 30%, 18%, 0.8)',
+                 background: 'hsla(230, 30%, 18%, 0.4)',
                  border: '1px solid hsla(220, 40%, 30%, 0.3)',
+                 backdropFilter: 'blur(10px)'
                }}>
             <div className="h-4 bg-gray-600 rounded mb-4"></div>
             <div className="h-48 bg-gray-600 rounded"></div>
@@ -109,130 +110,163 @@ export const ChartsSection: React.FC = () => {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       
       {/* Bar Chart: Projects by Type */}
-      <div className="rounded-xl p-6"
+      <div className="rounded-xl p-6 relative overflow-hidden"
            style={{
-             background: 'hsla(230, 30%, 18%, 0.8)',
+             background: 'hsla(230, 30%, 18%, 0.4)',
              border: '1px solid hsla(220, 40%, 30%, 0.3)',
+             backdropFilter: 'blur(10px)'
            }}>
-        <h3 className="text-lg font-semibold mb-4 text-left" style={{ color: 'hsl(0, 0%, 95%)' }}>
-          Projects by Type
-        </h3>
-        {chartData.typeData.length > 0 ? (
-          <ChartContainer config={{}} className="h-48">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData.typeData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsla(220, 40%, 30%, 0.3)" />
-                <XAxis dataKey="name" tick={{ fill: 'hsl(220, 15%, 70%)', fontSize: 12 }} />
-                <YAxis tick={{ fill: 'hsl(220, 15%, 70%)', fontSize: 12 }} />
-                <ChartTooltip 
-                  content={<ChartTooltipContent />}
-                  cursor={{ fill: 'hsla(195, 100%, 50%, 0.1)' }}
-                />
-                <Bar dataKey="count" 
-                     fill="hsl(195, 100%, 50%)"
-                     radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartContainer>
-        ) : (
-          <div className="h-48 flex items-center justify-center">
-            <p className="text-center" style={{ color: 'hsl(220, 15%, 70%)' }}>
-              No project data available
-            </p>
-          </div>
-        )}
+        
+        {/* Background glow effect */}
+        <div className="absolute inset-0 opacity-10 pointer-events-none"
+             style={{
+               background: 'radial-gradient(circle at center, hsla(195, 100%, 50%, 0.2) 0%, transparent 70%)',
+               filter: 'blur(30px)'
+             }}></div>
+
+        <div className="relative z-10">
+          <h3 className="text-lg font-semibold mb-4 text-left" style={{ color: 'hsl(0, 0%, 95%)' }}>
+            Projects by Type
+          </h3>
+          {chartData.typeData.length > 0 ? (
+            <ChartContainer config={{}} className="h-48">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData.typeData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsla(220, 40%, 30%, 0.3)" />
+                  <XAxis dataKey="name" tick={{ fill: 'hsl(220, 15%, 70%)', fontSize: 12 }} />
+                  <YAxis tick={{ fill: 'hsl(220, 15%, 70%)', fontSize: 12 }} />
+                  <ChartTooltip 
+                    content={<ChartTooltipContent />}
+                    cursor={{ fill: 'hsla(195, 100%, 50%, 0.1)' }}
+                  />
+                  <Bar dataKey="count" 
+                       fill="hsl(195, 100%, 50%)"
+                       radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          ) : (
+            <div className="h-48 flex items-center justify-center">
+              <p className="text-center" style={{ color: 'hsl(220, 15%, 70%)' }}>
+                No project data available
+              </p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Line Chart: Daily Activity */}
-      <div className="rounded-xl p-6"
+      <div className="rounded-xl p-6 relative overflow-hidden"
            style={{
-             background: 'hsla(230, 30%, 18%, 0.8)',
+             background: 'hsla(230, 30%, 18%, 0.4)',
              border: '1px solid hsla(220, 40%, 30%, 0.3)',
+             backdropFilter: 'blur(10px)'
            }}>
-        <h3 className="text-lg font-semibold mb-4 text-left" style={{ color: 'hsl(0, 0%, 95%)' }}>
-          Daily Activity (30 Days)
-        </h3>
-        {chartData.activityData.length > 0 ? (
-          <ChartContainer config={{}} className="h-48">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData.activityData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsla(220, 40%, 30%, 0.3)" />
-                <XAxis dataKey="date" tick={{ fill: 'hsl(220, 15%, 70%)', fontSize: 12 }} />
-                <YAxis tick={{ fill: 'hsl(220, 15%, 70%)', fontSize: 12 }} />
-                <ChartTooltip 
-                  content={<ChartTooltipContent />}
-                  cursor={{ stroke: 'hsl(195, 100%, 50%)', strokeWidth: 1 }}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="calls" 
-                  stroke="hsl(195, 100%, 50%)"
-                  strokeWidth={3}
-                  dot={{ fill: 'hsl(195, 100%, 50%)', r: 4 }}
-                  activeDot={{ r: 6, fill: 'hsl(195, 100%, 50%)' }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </ChartContainer>
-        ) : (
-          <div className="h-48 flex items-center justify-center">
-            <p className="text-center" style={{ color: 'hsl(220, 15%, 70%)' }}>
-              No activity data available
-            </p>
-          </div>
-        )}
+        
+        {/* Background glow effect */}
+        <div className="absolute inset-0 opacity-10 pointer-events-none"
+             style={{
+               background: 'radial-gradient(circle at center, hsla(195, 100%, 50%, 0.2) 0%, transparent 70%)',
+               filter: 'blur(30px)'
+             }}></div>
+
+        <div className="relative z-10">
+          <h3 className="text-lg font-semibold mb-4 text-left" style={{ color: 'hsl(0, 0%, 95%)' }}>
+            Daily Activity (30 Days)
+          </h3>
+          {chartData.activityData.length > 0 ? (
+            <ChartContainer config={{}} className="h-48">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData.activityData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsla(220, 40%, 30%, 0.3)" />
+                  <XAxis dataKey="date" tick={{ fill: 'hsl(220, 15%, 70%)', fontSize: 12 }} />
+                  <YAxis tick={{ fill: 'hsl(220, 15%, 70%)', fontSize: 12 }} />
+                  <ChartTooltip 
+                    content={<ChartTooltipContent />}
+                    cursor={{ stroke: 'hsl(195, 100%, 50%)', strokeWidth: 1 }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="calls" 
+                    stroke="hsl(195, 100%, 50%)"
+                    strokeWidth={3}
+                    dot={{ fill: 'hsl(195, 100%, 50%)', r: 4 }}
+                    activeDot={{ r: 6, fill: 'hsl(195, 100%, 50%)' }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          ) : (
+            <div className="h-48 flex items-center justify-center">
+              <p className="text-center" style={{ color: 'hsl(220, 15%, 70%)' }}>
+                No activity data available
+              </p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Pie Chart: Project Status */}
-      <div className="rounded-xl p-6"
+      <div className="rounded-xl p-6 relative overflow-hidden"
            style={{
-             background: 'hsla(230, 30%, 18%, 0.8)',
+             background: 'hsla(230, 30%, 18%, 0.4)',
              border: '1px solid hsla(220, 40%, 30%, 0.3)',
+             backdropFilter: 'blur(10px)'
            }}>
-        <h3 className="text-lg font-semibold mb-4 text-left" style={{ color: 'hsl(0, 0%, 95%)' }}>
-          Project Status Distribution
-        </h3>
-        {chartData.statusData.length > 0 ? (
-          <>
-            <ChartContainer config={{}} className="h-48">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={chartData.statusData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={40}
-                    outerRadius={80}
-                    dataKey="count"
-                  >
-                    {chartData.statusData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                </PieChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-            
-            {/* Legend */}
-            <div className="mt-4 space-y-2">
-              {chartData.statusData.map((item, index) => (
-                <div key={index} className="flex items-center space-x-2">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
-                  <span className="text-sm" style={{ color: 'hsl(220, 15%, 70%)' }}>
-                    {item.name}: {((item.count / chartData.statusData.reduce((sum, d) => sum + d.count, 0)) * 100).toFixed(0)}%
-                  </span>
-                </div>
-              ))}
+        
+        {/* Background glow effect */}
+        <div className="absolute inset-0 opacity-10 pointer-events-none"
+             style={{
+               background: 'radial-gradient(circle at center, hsla(195, 100%, 50%, 0.2) 0%, transparent 70%)',
+               filter: 'blur(30px)'
+             }}></div>
+
+        <div className="relative z-10">
+          <h3 className="text-lg font-semibold mb-4 text-left" style={{ color: 'hsl(0, 0%, 95%)' }}>
+            Project Status Distribution
+          </h3>
+          {chartData.statusData.length > 0 ? (
+            <>
+              <ChartContainer config={{}} className="h-48">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={chartData.statusData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={40}
+                      outerRadius={80}
+                      dataKey="count"
+                    >
+                      {chartData.statusData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </ChartContainer>
+              
+              {/* Legend */}
+              <div className="mt-4 space-y-2">
+                {chartData.statusData.map((item, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
+                    <span className="text-sm" style={{ color: 'hsl(220, 15%, 70%)' }}>
+                      {item.name}: {((item.count / chartData.statusData.reduce((sum, d) => sum + d.count, 0)) * 100).toFixed(0)}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="h-48 flex items-center justify-center">
+              <p className="text-center" style={{ color: 'hsl(220, 15%, 70%)' }}>
+                No project status data
+              </p>
             </div>
-          </>
-        ) : (
-          <div className="h-48 flex items-center justify-center">
-            <p className="text-center" style={{ color: 'hsl(220, 15%, 70%)' }}>
-              No project status data
-            </p>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

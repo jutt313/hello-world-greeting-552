@@ -79,17 +79,6 @@ export const MetricCards: React.FC = () => {
       setLoading(false);
     } catch (error) {
       console.error('Error fetching metrics:', error);
-      const defaultMetrics = {
-        totalProjects: 0,
-        activeSessions: 0,
-        dailyApiCalls: 0,
-        platformCredits: 1000,
-        projectsTrend: 'no data',
-        sessionsTrend: '0 running',
-        callsTrend: 'no data',
-      };
-      setMetrics(defaultMetrics);
-      setAnimatedValues(defaultMetrics);
       setLoading(false);
     }
   };
@@ -161,8 +150,9 @@ export const MetricCards: React.FC = () => {
         {[1, 2, 3, 4].map((i) => (
           <div key={i} className="rounded-xl p-6 animate-pulse"
                style={{
-                 background: 'hsla(230, 30%, 18%, 0.8)',
+                 background: 'hsla(230, 30%, 18%, 0.4)',
                  border: '1px solid hsla(220, 40%, 30%, 0.3)',
+                 backdropFilter: 'blur(10px)'
                }}>
             <div className="h-4 bg-gray-600 rounded mb-4"></div>
             <div className="h-8 bg-gray-600 rounded mb-2"></div>
@@ -177,36 +167,48 @@ export const MetricCards: React.FC = () => {
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
       {cards.map((card, index) => (
         <div key={card.title} 
-             className="rounded-xl p-5 cursor-pointer transition-all duration-300 hover:scale-105 text-left"
+             className="rounded-xl p-5 cursor-pointer transition-all duration-300 hover:scale-105 text-left relative overflow-hidden"
              style={{
-               background: 'hsla(230, 30%, 18%, 0.8)',
+               background: 'hsla(230, 30%, 18%, 0.4)',
                border: '1px solid hsla(220, 40%, 30%, 0.3)',
+               backdropFilter: 'blur(10px)',
                animationDelay: `${index * 100}ms`,
              }}
              onMouseEnter={(e) => {
-               e.currentTarget.style.boxShadow = `0 0 30px hsla(195, 100%, 50%, 0.2)`;
+               e.currentTarget.style.boxShadow = `0 0 30px hsla(195, 100%, 50%, 0.15)`;
                e.currentTarget.style.borderColor = 'hsla(195, 100%, 50%, 0.4)';
+               e.currentTarget.style.background = 'hsla(230, 30%, 18%, 0.6)';
              }}
              onMouseLeave={(e) => {
                e.currentTarget.style.boxShadow = 'none';
                e.currentTarget.style.borderColor = 'hsla(220, 40%, 30%, 0.3)';
+               e.currentTarget.style.background = 'hsla(230, 30%, 18%, 0.4)';
              }}>
           
-          <h3 className="text-sm font-medium tracking-wide mb-3" 
-              style={{ color: 'hsl(220, 15%, 70%)' }}>
-            {card.title}
-          </h3>
+          {/* Background glow effect */}
+          <div className="absolute inset-0 opacity-20 pointer-events-none"
+               style={{
+                 background: 'radial-gradient(circle at center, hsla(195, 100%, 50%, 0.1) 0%, transparent 70%)',
+                 filter: 'blur(20px)'
+               }}></div>
 
-          <div className="mb-2">
-            <span className="text-2xl font-bold tabular-nums" 
-                  style={{ color: 'hsl(0, 0%, 95%)' }}>
-              {card.value.toLocaleString()}
-            </span>
+          <div className="relative z-10">
+            <h3 className="text-sm font-medium tracking-wide mb-3" 
+                style={{ color: 'hsl(220, 15%, 70%)' }}>
+              {card.title}
+            </h3>
+
+            <div className="mb-2">
+              <span className="text-2xl font-bold tabular-nums" 
+                    style={{ color: 'hsl(0, 0%, 95%)' }}>
+                {card.value.toLocaleString()}
+              </span>
+            </div>
+
+            <p className="text-sm" style={{ color: 'hsl(220, 15%, 70%)' }}>
+              {card.subtitle}
+            </p>
           </div>
-
-          <p className="text-sm" style={{ color: 'hsl(220, 15%, 70%)' }}>
-            {card.subtitle}
-          </p>
         </div>
       ))}
     </div>
