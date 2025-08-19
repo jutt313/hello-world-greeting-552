@@ -134,7 +134,7 @@ const Auth = () => {
       <div className="auth-container">
         {/* Logo and Title */}
         <div className="auth-header">
-          <h1 className="auth-logo">CodeXI</h1>
+          <h1 className="auth-logo">Code-XI</h1>
           <p className="auth-subtitle">AI-Powered Development Assistant</p>
         </div>
 
