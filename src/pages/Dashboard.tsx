@@ -6,7 +6,7 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { MetricCards } from "@/components/dashboard/MetricCards";
 import { ChartsSection } from "@/components/dashboard/ChartsSection";
 import { ProjectsTable } from "@/components/dashboard/ProjectsTable";
-import { LLMProvidersSection } from "@/components/llm/LLMProvidersSection";
+import LLMProvidersSection from "@/components/llm/LLMProvidersSection";
 
 const Dashboard = () => {
   return (
