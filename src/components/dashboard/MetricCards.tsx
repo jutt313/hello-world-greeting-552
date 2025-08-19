@@ -63,25 +63,10 @@ export const MetricCards: React.FC = () => {
       const weeklyGrowth = currentProjects - lastWeekProjects;
       const callsChange = dailyCalls - yesterdayCalls;
 
-      // Fix platform credits - handle when no profile exists vs when profile has real data
+      // Fix platform credits - show 0 if no profile exists, don't auto-create
       let creditsRemaining = 0;
-      if (profileRes.data) {
+      if (profileRes.data && profileRes.data.credits_remaining !== null) {
         creditsRemaining = profileRes.data.credits_remaining;
-      } else {
-        // If no profile exists, create one with default credits
-        const { data: newProfile, error: createError } = await supabase
-          .from('users_profiles')
-          .insert({
-            id: user.id,
-            username: user.email?.split('@')[0] || 'user',
-            credits_remaining: 1000
-          })
-          .select('credits_remaining')
-          .single();
-        
-        if (!createError && newProfile) {
-          creditsRemaining = newProfile.credits_remaining;
-        }
       }
 
       const newMetrics = {

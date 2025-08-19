@@ -1,11 +1,12 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Users, Plus, Mail, Shield, Crown, UserCheck, Settings } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface TeamPopupProps {
   isOpen: boolean;
@@ -23,34 +24,55 @@ interface TeamMember {
 
 const TeamPopup: React.FC<TeamPopupProps> = ({ isOpen, onClose }) => {
   const [inviteEmail, setInviteEmail] = useState('');
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
   
-  // Mock team data - in real app this would come from Supabase
-  const [teamMembers] = useState<TeamMember[]>([
-    {
-      id: '1',
-      name: 'John Doe',
-      email: 'john@example.com',
-      role: 'owner',
-      status: 'active',
-      joinedAt: '2024-01-15'
-    },
-    {
-      id: '2',
-      name: 'Jane Smith',
-      email: 'jane@example.com',
-      role: 'admin',
-      status: 'active',
-      joinedAt: '2024-01-20'
-    },
-    {
-      id: '3',
-      name: 'Mike Johnson',
-      email: 'mike@example.com',
-      role: 'member',
-      status: 'pending',
-      joinedAt: '2024-01-25'
+  const fetchTeamMembers = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Get user's own profile as team owner
+      const { data: profile } = await supabase
+        .from('users_profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      const members: TeamMember[] = [];
+      
+      if (profile) {
+        members.push({
+          id: user.id,
+          name: profile.full_name || profile.username || 'You',
+          email: user.email || 'No email',
+          role: 'owner',
+          status: 'active',
+          joinedAt: profile.created_at
+        });
+      }
+
+      // TODO: Add real team members from project_users table when team functionality is implemented
+      
+      setTeamMembers(members);
+    } catch (error) {
+      console.error('Error fetching team members:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load team members',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchTeamMembers();
+    }
+  }, [isOpen]);
 
   const getRoleIcon = (role: string) => {
     switch (role) {
@@ -81,14 +103,17 @@ const TeamPopup: React.FC<TeamPopupProps> = ({ isOpen, onClose }) => {
 
   const handleInvite = () => {
     if (!inviteEmail) return;
-    // Here you would handle the invitation logic
-    console.log('Inviting:', inviteEmail);
+    // TODO: Implement team invitation functionality
+    toast({
+      title: 'Feature Coming Soon',
+      description: 'Team invitations will be available in a future update',
+    });
     setInviteEmail('');
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl rounded-xl max-h-[90vh]">
+      <DialogContent className="max-w-5xl rounded-xl max-h-[90vh] min-h-[70vh]">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold flex items-center gap-2">
             <Users className="w-5 h-5" />
@@ -156,43 +181,55 @@ const TeamPopup: React.FC<TeamPopupProps> = ({ isOpen, onClose }) => {
             {/* Team Members List */}
             <section className="space-y-4">
               <h2 className="text-lg font-semibold">Team Members</h2>
-              <div className="space-y-3">
-                {teamMembers.map((member) => (
-                  <div key={member.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-blue-400 flex items-center justify-center">
-                        <span className="text-white font-medium text-sm">
-                          {member.name.split(' ').map(n => n[0]).join('')}
-                        </span>
+              {loading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-20 bg-muted rounded-lg animate-pulse" />
+                  ))}
+                </div>
+              ) : teamMembers.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No team members found. Start by inviting your first team member!
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {teamMembers.map((member) => (
+                    <div key={member.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-blue-400 flex items-center justify-center">
+                          <span className="text-white font-medium text-sm">
+                            {member.name.split(' ').map(n => n[0]).join('')}
+                          </span>
+                        </div>
+                        <div>
+                          <h3 className="font-medium">{member.name}</h3>
+                          <p className="text-sm text-muted-foreground">{member.email}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Joined {new Date(member.joinedAt).toLocaleDateString()}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-medium">{member.name}</h3>
-                        <p className="text-sm text-muted-foreground">{member.email}</p>
-                        <p className="text-xs text-muted-foreground">
-                          Joined {new Date(member.joinedAt).toLocaleDateString()}
-                        </p>
+                      
+                      <div className="flex items-center gap-3">
+                        <Badge className={getRoleBadgeColor(member.role)} variant="secondary">
+                          {getRoleIcon(member.role)}
+                          <span className="ml-1 capitalize">{member.role}</span>
+                        </Badge>
+                        
+                        <Badge className={getStatusBadgeColor(member.status)} variant="secondary">
+                          <span className="capitalize">{member.status}</span>
+                        </Badge>
+                        
+                        {member.role !== 'owner' && (
+                          <Button variant="ghost" size="sm">
+                            <Settings className="w-4 h-4" />
+                          </Button>
+                        )}
                       </div>
                     </div>
-                    
-                    <div className="flex items-center gap-3">
-                      <Badge className={getRoleBadgeColor(member.role)} variant="secondary">
-                        {getRoleIcon(member.role)}
-                        <span className="ml-1 capitalize">{member.role}</span>
-                      </Badge>
-                      
-                      <Badge className={getStatusBadgeColor(member.status)} variant="secondary">
-                        <span className="capitalize">{member.status}</span>
-                      </Badge>
-                      
-                      {member.role !== 'owner' && (
-                        <Button variant="ghost" size="sm">
-                          <Settings className="w-4 h-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </section>
 
             {/* Team Permissions */}

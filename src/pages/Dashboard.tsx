@@ -10,6 +10,7 @@ import DocumentationPopup from "@/components/popups/DocumentationPopup";
 import CLISetupPopup from "@/components/popups/CLISetupPopup";
 import SettingsPopup from "@/components/popups/SettingsPopup";
 import TeamPopup from "@/components/popups/TeamPopup";
+import NotificationsPopup from "@/components/popups/NotificationsPopup";
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 
@@ -20,6 +21,7 @@ const Dashboard = () => {
   const [cliSetupOpen, setCLISetupOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [teamOpen, setTeamOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -48,11 +50,11 @@ const Dashboard = () => {
       </div>
 
       <div className="relative z-10">
-        {/* Minimal Header */}
-        <header className="flex items-center justify-between p-6 border-b border-white/10 bg-black/20 backdrop-blur-sm">
+        {/* Minimal Header - Fixed: removed border-b border-white/10 */}
+        <header className="flex items-center justify-between p-6 bg-black/20 backdrop-blur-sm">
           <div>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-              CodeXI
+              Code-XI
             </h1>
             <p className="text-slate-400 text-sm">
               Build, deploy, and scale AI-powered applications effortlessly
@@ -60,11 +62,16 @@ const Dashboard = () => {
           </div>
           
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="text-white hover:bg-white/10"
+              onClick={() => setNotificationsOpen(true)}
+            >
               <Bell className="w-4 h-4" />
             </Button>
             
-            {/* Profile Dropdown */}
+            {/* Profile Dropdown - Fixed: changed z-50 to z-[9999] */}
             <div className="relative">
               <button
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
@@ -77,7 +84,7 @@ const Dashboard = () => {
               </button>
 
               {profileDropdownOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 bg-card border border-border rounded-lg shadow-lg z-50">
+                <div className="absolute right-0 top-full mt-2 w-48 bg-card border border-border rounded-lg shadow-lg z-[9999]">
                   {menuItems.map((item, index) => (
                     <button
                       key={index}
@@ -124,6 +131,10 @@ const Dashboard = () => {
       <TeamPopup 
         isOpen={teamOpen} 
         onClose={() => setTeamOpen(false)} 
+      />
+      <NotificationsPopup 
+        isOpen={notificationsOpen} 
+        onClose={() => setNotificationsOpen(false)} 
       />
     </div>
   );
