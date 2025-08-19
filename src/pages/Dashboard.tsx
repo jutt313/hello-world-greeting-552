@@ -3,10 +3,10 @@ import React from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import MetricCards from "@/components/dashboard/MetricCards";
-import ChartsSection from "@/components/dashboard/ChartsSection";
-import ProjectsTable from "@/components/dashboard/ProjectsTable";
-import LLMProvidersSection from "@/components/llm/LLMProvidersSection";
+import { MetricCards } from "@/components/dashboard/MetricCards";
+import { ChartsSection } from "@/components/dashboard/ChartsSection";
+import { ProjectsTable } from "@/components/dashboard/ProjectsTable";
+import { LLMProvidersSection } from "@/components/llm/LLMProvidersSection";
 
 const Dashboard = () => {
   return (
