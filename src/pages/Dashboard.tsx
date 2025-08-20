@@ -50,13 +50,13 @@ const Dashboard = () => {
       </div>
 
       <div className="relative z-10">
-        {/* Minimal Header - Fixed: removed border-b border-white/10 */}
-        <header className="flex items-center justify-between p-6 bg-black/20 backdrop-blur-sm">
+        {/* Standalone Platform Title and Navigation */}
+        <div className="flex items-center justify-between p-8">
           <div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-2">
               Code-XI
             </h1>
-            <p className="text-slate-400 text-sm">
+            <p className="text-slate-300 text-lg">
               Build, deploy, and scale AI-powered applications effortlessly
             </p>
           </div>
@@ -68,10 +68,10 @@ const Dashboard = () => {
               className="text-white hover:bg-white/10"
               onClick={() => setNotificationsOpen(true)}
             >
-              <Bell className="w-4 h-4" />
+              <Bell className="w-5 h-5" />
             </Button>
             
-            {/* Profile Dropdown - Fixed: changed z-50 to z-[9999] */}
+            {/* Profile Dropdown - Fixed z-index to be higher than mini cards */}
             <div className="relative">
               <button
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
@@ -84,7 +84,7 @@ const Dashboard = () => {
               </button>
 
               {profileDropdownOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 bg-card border border-border rounded-lg shadow-lg z-[9999]">
+                <div className="absolute right-0 top-full mt-2 w-48 bg-card border border-border rounded-lg shadow-lg z-[99999]">
                   {menuItems.map((item, index) => (
                     <button
                       key={index}
@@ -101,10 +101,10 @@ const Dashboard = () => {
               )}
             </div>
           </div>
-        </header>
+        </div>
         
         {/* Main Content */}
-        <main className="p-6 space-y-8">
+        <main className="px-8 pb-8 space-y-8">
           <MetricCards />
           <ChartsSection />
           <ProjectsTable />
