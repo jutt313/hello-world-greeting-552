@@ -7,6 +7,7 @@ import FullStackEngineerStatus from '@/components/agents/FullStackEngineerStatus
 import DevOpsEngineerStatus from '@/components/agents/DevOpsEngineerStatus';
 import SecurityEngineerStatus from '@/components/agents/SecurityEngineerStatus';
 import QAEngineerStatus from '@/components/agents/QAEngineerStatus';
+import SolutionsArchitectStatus from '@/components/agents/SolutionsArchitectStatus';
 
 export const AgentsOverview: React.FC = () => {
   return (
@@ -16,6 +17,7 @@ export const AgentsOverview: React.FC = () => {
       <DevOpsEngineerStatus />
       <SecurityEngineerStatus />
       <QAEngineerStatus />
+      <SolutionsArchitectStatus />
       <AgentsSection />
       <AgentWorkflowCard />
     </div>
