@@ -59,7 +59,19 @@ const SolutionsArchitectChat: React.FC<SolutionsArchitectChatProps> = ({ project
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      setMessages(data || []);
+      
+      // Filter and map the messages to match our Message interface
+      const formattedMessages: Message[] = (data || []).map(msg => ({
+        id: msg.id,
+        content: msg.content,
+        sender_type: msg.sender_type === 'user' ? 'user' : 'agent',
+        sender_agent_id: msg.sender_agent_id,
+        created_at: msg.created_at,
+        tokens_used: msg.tokens_used,
+        cost: msg.cost,
+      }));
+      
+      setMessages(formattedMessages);
     } catch (error) {
       console.error('Error fetching messages:', error);
     } finally {

@@ -72,255 +72,6 @@ Serverless Architecture Design:
 - Cost Optimization: Resource allocation, execution time optimization, usage patterns
 - Monitoring: Function metrics, distributed tracing, error tracking, performance analysis
 
-#### Enterprise Architecture Patterns
-Domain-Driven Design (DDD):
-- Strategic Design: Bounded contexts, context mapping, domain modeling
-- Tactical Patterns: Entities, value objects, aggregates, domain services
-- Layered Architecture: Domain layer isolation, application services, infrastructure abstraction
-- Event Storming: Collaborative modeling, domain events, process discovery
-- Ubiquitous Language: Shared vocabulary, communication patterns, documentation standards
-- Anti-Corruption Layer: Legacy system integration, data translation, boundary protection
-- Repository Pattern: Data access abstraction, persistence ignorance, testability
-
-Event-Driven Architecture:
-- Event Design: Event schema, versioning strategies, backward compatibility
-- Message Brokers: Apache Kafka, RabbitMQ, Amazon SQS, Azure Service Bus
-- Event Sourcing: Append-only event store, replay capabilities, temporal queries
-- CQRS Implementation: Command-query separation, read/write optimization, eventual consistency
-- Saga Patterns: Distributed transaction management, compensation actions, state machines
-- Stream Processing: Real-time analytics, event transformation, windowing operations
-- Event Governance: Schema registry, event catalog, versioning policies
-
-### Technology Stack Evaluation and Selection
-
-#### Framework and Technology Assessment
-Frontend Technology Evaluation:
-- React Ecosystem: Next.js, Gatsby, Create React App, performance characteristics
-- Vue.js Stack: Nuxt.js, Quasar, Vue CLI, developer experience, community support
-- Angular Platform: Angular Universal, Ionic, NativeScript, enterprise readiness
-- Modern Alternatives: Svelte, SolidJS, Lit, performance benchmarks, adoption trends
-- Mobile Solutions: React Native, Flutter, Ionic, Xamarin, hybrid vs. native trade-offs
-- Progressive Web Apps: Service workers, offline capabilities, native integration
-- Micro-frontend Architecture: Module federation, single-spa, independent deployments
-
-Backend Technology Selection:
-- Node.js Ecosystem: Express, Fastify, NestJS, Koa, performance and scalability analysis
-- Python Frameworks: Django, Flask, FastAPI, async capabilities, AI/ML integration
-- Java Platform: Spring Boot, Quarkus, Micronaut, enterprise features, performance
-- .NET Core: ASP.NET Core, Entity Framework, Azure integration, cross-platform deployment
-- Go Language: Gin, Fiber, Echo, concurrency model, performance characteristics
-- Emerging Technologies: Rust, Deno, Bun, adoption readiness, ecosystem maturity
-- Database Integration: ORM selection, database compatibility, performance optimization
-
-#### Database Architecture Design
-Relational Database Selection:
-- PostgreSQL: Advanced features, JSON support, extensibility, performance tuning
-- MySQL: Replication, clustering, storage engines, optimization strategies
-- SQL Server: Enterprise features, Azure integration, Always On availability
-- Oracle: Enterprise capabilities, PL/SQL, performance optimization, licensing
-- Database Design: Normalization strategies, indexing optimization, partitioning
-- Scaling Strategies: Read replicas, horizontal partitioning, database sharding
-- Backup and Recovery: Point-in-time recovery, disaster recovery, business continuity
-
-NoSQL Database Strategy:
-- Document Stores: MongoDB, CouchDB, Amazon DocumentDB, schema flexibility
-- Key-Value Stores: Redis, Amazon DynamoDB, Azure Cosmos DB, caching strategies
-- Column Family: Cassandra, HBase, wide-column design, distributed architecture
-- Graph Databases: Neo4j, Amazon Neptune, relationship modeling, query optimization
-- Search Engines: Elasticsearch, Solr, full-text search, analytics capabilities
-- Time Series: InfluxDB, TimescaleDB, IoT data, metrics storage, retention policies
-- Multi-Model: Azure Cosmos DB, Amazon Neptune, ArangoDB, unified data access
-
-### Cloud Architecture and Infrastructure Design
-
-#### Multi-Cloud Architecture Strategy
-AWS Architecture Patterns:
-- Well-Architected Framework: Operational excellence, security, reliability, performance
-- Compute Services: EC2, Lambda, ECS, EKS, Batch, optimal service selection
-- Storage Solutions: S3, EBS, EFS, FSx, data lifecycle management, cost optimization
-- Database Services: RDS, DynamoDB, Aurora, Redshift, database migration strategies
-- Networking: VPC, CloudFront, Route 53, Direct Connect, hybrid connectivity
-- Security Services: IAM, KMS, WAF, Shield, security architecture design
-- Monitoring: CloudWatch, X-Ray, Config, comprehensive observability strategy
-
-Google Cloud Platform Design:
-- Cloud Architecture Framework: Operational efficiency, security, performance, cost
-- Compute Options: Compute Engine, Cloud Run, GKE, Cloud Functions, workload placement
-- Storage Systems: Cloud Storage, Persistent Disk, Filestore, data management strategies
-- Database Portfolio: Cloud SQL, Firestore, Bigtable, BigQuery, analytics architecture
-- Networking: VPC, Cloud CDN, Cloud DNS, hybrid and multi-cloud connectivity
-- AI/ML Integration: Vertex AI, AutoML, TensorFlow, machine learning pipelines
-- DevOps Tools: Cloud Build, Artifact Registry, deployment automation
-
-Microsoft Azure Solutions:
-- Cloud Adoption Framework: Strategy, planning, ready, adopt, govern, manage
-- Compute Services: Virtual Machines, Container Instances, AKS, Functions, hybrid solutions
-- Storage Architecture: Blob Storage, Files, Managed Disks, data tiering strategies
-- Database Services: SQL Database, Cosmos DB, PostgreSQL, MySQL, data platform design
-- Integration Services: Logic Apps, Service Bus, Event Grid, enterprise integration
-- Identity Management: Azure AD, B2C, conditional access, security architecture
-- Analytics Platform: Synapse Analytics, Data Factory, Power BI, data lake architecture
-
-#### Hybrid and Multi-Cloud Strategies
-Hybrid Cloud Architecture:
-- Connectivity Solutions: VPN, Express Route, Direct Connect, network architecture
-- Data Synchronization: Replication strategies, consistency models, conflict resolution
-- Identity Integration: Federated identity, single sign-on, access management
-- Workload Distribution: On-premises vs. cloud placement, migration strategies
-- Disaster Recovery: Cross-environment backup, failover procedures, RTO/RPO planning
-- Compliance Management: Data sovereignty, regulatory requirements, audit trails
-- Cost Optimization: Resource allocation, usage optimization, license management
-
-Multi-Cloud Strategy:
-- Vendor Lock-in Avoidance: Abstraction layers, portable architectures, exit strategies
-- Best-of-Breed Selection: Service comparison, capability mapping, integration complexity
-- Data Portability: Standards-based formats, migration tools, interoperability
-- Orchestration: Multi-cloud management, unified monitoring, consistent policies
-- Security Coordination: Identity federation, consistent security policies, threat management
-- Cost Management: Multi-cloud billing, resource optimization, vendor negotiations
-- Governance Framework: Policy consistency, compliance management, risk mitigation
-
-### Integration Architecture and API Design
-
-#### API Architecture Excellence
-RESTful API Design:
-- Resource Modeling: RESTful principles, URI design, HTTP method selection
-- Versioning Strategies: URI versioning, header versioning, content negotiation
-- Error Handling: HTTP status codes, error response formats, debugging information
-- Security Implementation: Authentication, authorization, rate limiting, input validation
-- Documentation Standards: OpenAPI specification, interactive documentation, code generation
-- Performance Optimization: Caching, compression, pagination, query optimization
-- Testing Strategies: Contract testing, API mocking, performance testing, security testing
-
-GraphQL Architecture:
-- Schema Design: Type system, queries, mutations, subscriptions, federation
-- Resolver Implementation: Data loading, N+1 problem solutions, caching strategies
-- Security Considerations: Query complexity analysis, depth limiting, authentication integration
-- Performance Optimization: DataLoader, query optimization, caching layers
-- Tooling Ecosystem: Apollo, Relay, GraphQL Code Generator, development workflow
-- Federation Strategy: Schema stitching, distributed teams, microservices integration
-- Migration Planning: REST to GraphQL migration, coexistence strategies, tooling support
-
-#### Enterprise Integration Patterns
-Message-Oriented Middleware:
-- Message Brokers: Apache Kafka, RabbitMQ, Apache Pulsar, selection criteria
-- Messaging Patterns: Publish-subscribe, point-to-point, request-reply, message routing
-- Reliability Patterns: Message acknowledgment, dead letter queues, retry mechanisms
-- Scalability Design: Partitioning, consumer groups, load balancing, performance tuning
-- Schema Evolution: Message versioning, backward compatibility, schema registry
-- Security Implementation: Encryption in transit, access control, audit logging
-- Monitoring: Message flow tracking, performance metrics, alerting strategies
-
-Event Streaming Architecture:
-- Apache Kafka Design: Topics, partitions, replication, performance optimization
-- Stream Processing: Apache Storm, Apache Flink, Kafka Streams, real-time analytics
-- Data Pipeline: ETL processes, data transformation, quality assurance, monitoring
-- Event Sourcing: Event store design, snapshot strategies, replay capabilities
-- CQRS Implementation: Command and query separation, eventual consistency, projection management
-- Scaling Strategies: Horizontal scaling, consumer group management, partition strategies
-- Operations: Cluster management, monitoring, backup and recovery, capacity planning
-
-### Performance and Scalability Architecture
-
-#### Scalability Patterns and Strategies
-Horizontal Scaling Design:
-- Load Balancing: Algorithm selection, health checks, session affinity, geographic distribution
-- Database Sharding: Shard key selection, distribution strategies, cross-shard queries
-- Caching Strategies: Multi-level caching, cache invalidation, consistency models
-- Content Delivery: CDN architecture, edge caching, geographic optimization
-- Auto-scaling: Metrics-based scaling, predictive scaling, cost optimization
-- State Management: Stateless design, session externalization, distributed state
-- Monitoring: Performance metrics, capacity planning, bottleneck identification
-
-Vertical Scaling Optimization:
-- Resource Allocation: CPU, memory, I/O optimization, right-sizing strategies
-- Performance Tuning: Application optimization, database tuning, system configuration
-- Capacity Planning: Growth projections, resource forecasting, upgrade strategies
-- Bottleneck Analysis: Performance profiling, system monitoring, optimization priorities
-- Technology Upgrades: Hardware refresh, software updates, migration planning
-- Cost Analysis: Performance vs. cost trade-offs, optimization opportunities
-- Monitoring: Resource utilization, performance trends, capacity alerts
-
-#### Performance Architecture Patterns
-Caching Architecture:
-- Cache Levels: Browser, CDN, reverse proxy, application, database caching
-- Cache Strategies: Cache-aside, write-through, write-behind, refresh-ahead patterns
-- Distributed Caching: Redis Cluster, Hazelcast, Apache Ignite, consistency models
-- Cache Invalidation: TTL strategies, event-driven invalidation, cache warming
-- Performance Optimization: Hit rate optimization, cache size tuning, eviction policies
-- Monitoring: Cache metrics, hit rates, performance impact, cost analysis
-- Security: Cache security, data protection, access control, encryption
-
-Database Performance Architecture:
-- Query Optimization: Index strategies, query analysis, execution plan optimization
-- Connection Management: Connection pooling, connection lifecycle, resource allocation
-- Read Scaling: Read replicas, query routing, consistency management
-- Write Optimization: Batch processing, async writes, write optimization techniques
-- Partitioning: Horizontal partitioning, vertical partitioning, partition pruning
-- Archiving Strategies: Data lifecycle management, cold storage, compliance requirements
-- Monitoring: Database metrics, slow query analysis, capacity planning
-
-### Security Architecture and Compliance
-
-#### Security Architecture Design
-Zero Trust Architecture:
-- Identity-Centric Security: Identity verification, continuous authentication, risk assessment
-- Network Segmentation: Micro-segmentation, software-defined perimeters, east-west traffic control
-- Device Security: Device compliance, certificate-based authentication, endpoint protection
-- Data Protection: Classification, encryption, access controls, data loss prevention
-- Application Security: Application-level controls, API security, runtime protection
-- Monitoring: Security analytics, behavioral analysis, threat detection, incident response
-- Compliance: Regulatory alignment, audit trails, continuous compliance monitoring
-
-Compliance Architecture:
-- Regulatory Framework Mapping: GDPR, HIPAA, PCI DSS, SOX, compliance requirements
-- Data Governance: Data classification, retention policies, privacy by design
-- Audit Trail Design: Immutable logging, event tracking, evidence collection
-- Access Control Architecture: Role-based access, attribute-based access, privileged access management
-- Encryption Strategy: Data at rest, data in transit, key management, crypto agility
-- Privacy Protection: Data minimization, anonymization, consent management
-- Incident Response: Detection capabilities, response procedures, forensics readiness
-
-### Architecture Documentation and Governance
-
-#### Architecture Decision Records (ADRs)
-Decision Documentation Framework:
-- ADR Templates: Structured decision recording, context documentation, alternatives analysis
-- Decision Criteria: Technical factors, business factors, risk assessment, trade-off analysis
-- Stakeholder Involvement: Review processes, approval workflows, communication strategies
-- Version Control: Decision evolution, historical tracking, change management
-- Template Standards: Consistent formatting, required sections, quality criteria
-- Review Process: Peer review, architectural review board, approval gates
-- Knowledge Management: Searchable repository, categorization, cross-referencing
-
-Technical Specification Development:
-- Architecture Diagrams: System context, container diagrams, component diagrams, deployment diagrams
-- Interface Specifications: API contracts, message formats, integration protocols
-- Data Architecture: Entity relationship diagrams, data flow diagrams, schema definitions
-- Security Specifications: Threat models, security controls, compliance mapping
-- Performance Requirements: SLA definitions, performance benchmarks, capacity planning
-- Quality Attributes: Reliability, availability, maintainability, scalability requirements
-- Implementation Guidelines: Coding standards, design patterns, best practices documentation
-
-#### Architectural Governance
-Architecture Review Process:
-- Review Board: Architecture review board, expertise representation, decision authority
-- Review Criteria: Technical standards, business alignment, risk assessment, compliance
-- Review Stages: Conceptual review, detailed design review, implementation review
-- Quality Gates: Architecture compliance, security validation, performance verification
-- Exception Process: Deviation approval, risk acceptance, mitigation planning
-- Continuous Improvement: Process refinement, lessons learned, knowledge sharing
-- Tool Support: Review checklists, automated validation, documentation management
-
-Standards and Guidelines:
-- Architectural Principles: Design principles, technology standards, quality attributes
-- Technology Radar: Technology adoption lifecycle, recommendation categories, evaluation criteria
-- Reference Architectures: Proven patterns, best practices, implementation templates
-- Design Patterns: Common solutions, pattern catalog, usage guidelines, anti-patterns
-- Security Standards: Security baseline, threat modeling, security controls catalog
-- Performance Standards: Performance requirements, benchmarking, optimization guidelines
-- Integration Standards: Protocol standards, data formats, service contracts, error handling
-
 ### CLI COMMAND CAPABILITIES
 
 You have comprehensive CLI command capabilities for architectural analysis and design:
@@ -398,12 +149,12 @@ serve(async (req) => {
 
     const { action, user_id, project_id, message, context }: SolutionsArchitectRequest = await req.json()
 
-    console.log(\`Solutions Architect Agent - Action: \${action}, User: \${user_id}, Project: \${project_id}\`)
+    console.log('Solutions Architect Agent - Action:', action, 'User:', user_id, 'Project:', project_id)
 
     // Get user's selected LLM provider for this project
-    const { data: project, error: projectError } = await subabaseClient
+    const { data: project, error: projectError } = await supabaseClient
       .from('projects')
-      .select(\`
+      .select(`
         *,
         llm_providers (
           provider_name,
@@ -411,7 +162,7 @@ serve(async (req) => {
           provider_config,
           selected_models
         )
-      \`)
+      `)
       .eq('id', project_id)
       .eq('owner_id', user_id)
       .single()
@@ -455,17 +206,17 @@ serve(async (req) => {
     const messages = [
       {
         role: 'system',
-        content: SOLUTIONS_ARCHITECT_SYSTEM_PROMPT + \`
+        content: SOLUTIONS_ARCHITECT_SYSTEM_PROMPT + `
 
 Current Project Context:
-\${JSON.stringify(contextualInfo, null, 2)}
+${JSON.stringify(contextualInfo, null, 2)}
 
 SOLUTIONS ARCHITECT AGENT - TASK ACCEPTED
-Action: \${action}
-Project: \${project.name}
-Time: \${new Date().toISOString()}
+Action: ${action}
+Project: ${project.name}
+Time: ${new Date().toISOString()}
 
-Ready to provide comprehensive architectural analysis, system design, and technology strategy guidance through CLI-based interactions.\`
+Ready to provide comprehensive architectural analysis, system design, and technology strategy guidance through CLI-based interactions.`
       }
     ]
 
@@ -510,20 +261,20 @@ Ready to provide comprehensive architectural analysis, system design, and techno
       const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': \`Bearer \${llmProvider.api_key}\`,
+          'Authorization': `Bearer ${llmProvider.api_key}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: llmProvider.selected_models?.[0] || 'gpt-4.1-2025-04-14',
+          model: llmProvider.selected_models?.[0] || 'gpt-4-1106-preview',
           messages: messages,
-          max_completion_tokens: 4000,
+          max_tokens: 4000,
         }),
       })
 
       const data = await openaiResponse.json()
       
       if (!openaiResponse.ok) {
-        throw new Error(\`OpenAI API error: \${data.error?.message || 'Unknown error'}\`)
+        throw new Error(`OpenAI API error: ${data.error?.message || 'Unknown error'}`)
       }
 
       response = data.choices[0]?.message?.content || 'No response generated'
@@ -538,7 +289,7 @@ Ready to provide comprehensive architectural analysis, system design, and techno
           'anthropic-version': '2023-06-01'
         },
         body: JSON.stringify({
-          model: llmProvider.selected_models?.[0] || 'claude-3-5-sonnet-20241022',
+          model: llmProvider.selected_models?.[0] || 'claude-3-sonnet-20240229',
           max_tokens: 4000,
           messages: messages.filter(m => m.role !== 'system'),
           system: messages.find(m => m.role === 'system')?.content
@@ -548,14 +299,14 @@ Ready to provide comprehensive architectural analysis, system design, and techno
       const data = await anthropicResponse.json()
       
       if (!anthropicResponse.ok) {
-        throw new Error(\`Anthropic API error: \${data.error?.message || 'Unknown error'}\`)
+        throw new Error(`Anthropic API error: ${data.error?.message || 'Unknown error'}`)
       }
 
       response = data.content[0]?.text || 'No response generated'
       tokens_used = data.usage?.input_tokens + data.usage?.output_tokens || 0
       cost = (tokens_used / 1000) * 0.003 // Approximate cost calculation
     } else {
-      throw new Error(\`Unsupported LLM provider: \${llmProvider.provider_name}\`)
+      throw new Error(`Unsupported LLM provider: ${llmProvider.provider_name}`)
     }
 
     // Store the conversation in chat_messages
@@ -607,7 +358,7 @@ Ready to provide comprehensive architectural analysis, system design, and techno
           agent_id: 'solutions_architect',
           project_id: project_id,
           memory_type: 'decision',
-          context_key: \`architectural_\${action}_\${Date.now()}\`,
+          context_key: `architectural_${action}_${Date.now()}`,
           context_data: {
             action_type: action,
             architectural_decision: response.substring(0, 1000),
