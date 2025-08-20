@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,9 +24,9 @@ export const DocumentationSpecialistChat: React.FC<DocumentationSpecialistChatPr
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const { 
-    sendMessage, 
+    executeDocumentationTask, 
     createDocumentation, 
-    generateAPIDocumentation,
+    generateApiDocs,
     isLoading 
   } = useDocumentationSpecialist(projectId);
 
@@ -74,7 +75,7 @@ export const DocumentationSpecialistChat: React.FC<DocumentationSpecialistChatPr
     const messageContent = newMessage;
     setNewMessage('');
 
-    const response = await sendMessage(messageContent);
+    const response = await executeDocumentationTask('general_query', messageContent);
     if (response?.success && response.response) {
       const agentMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -90,7 +91,7 @@ export const DocumentationSpecialistChat: React.FC<DocumentationSpecialistChatPr
     let response;
     switch (action) {
       case 'api-docs':
-        response = await generateAPIDocumentation(params || 'openapi');
+        response = await generateApiDocs(params || 'openapi');
         break;
       case 'user-guide':
         response = await createDocumentation('user-guide', params || 'getting-started');
@@ -99,7 +100,7 @@ export const DocumentationSpecialistChat: React.FC<DocumentationSpecialistChatPr
         response = await createDocumentation('tutorial', params || 'basic-usage');
         break;
       default:
-        response = await sendMessage(`Execute ${action} ${params || ''}`.trim());
+        response = await executeDocumentationTask(action, `Execute ${action} ${params || ''}`.trim());
     }
 
     if (response?.success && response.response) {
