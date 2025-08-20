@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Brain, Plus, TrendingUp, Zap, Share2, Optimize } from 'lucide-react';
+import { Brain, Plus, TrendingUp, Zap, Share2, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAgentMemory } from '@/hooks/useAgentMemory';
 import AgentMemoryInsights from './AgentMemoryInsights';
@@ -208,7 +208,7 @@ const AgentMemoryManager: React.FC<AgentMemoryManagerProps> = ({
                 onClick={optimizeMemories}
                 className="ml-auto"
               >
-                <Optimize className="w-4 h-4 mr-2" />
+                <Settings className="w-4 h-4 mr-2" />
                 Optimize Memory
               </Button>
             </div>

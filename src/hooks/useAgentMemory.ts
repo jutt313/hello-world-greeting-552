@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { AgentMemoryContext, AgentExpertisePattern, MemoryType, ExpertiseCategory } from '@/types/memory';
+import type { Json } from '@/integrations/supabase/types';
 
 export const useAgentMemory = (projectId?: string, agentId?: string) => {
   const [memories, setMemories] = useState<AgentMemoryContext[]>([]);
@@ -28,7 +29,7 @@ export const useAgentMemory = (projectId?: string, agentId?: string) => {
       const { data, error } = await query;
       if (error) throw error;
       
-      setMemories(data || []);
+      setMemories(data as AgentMemoryContext[] || []);
     } catch (error) {
       console.error('Error fetching agent memories:', error);
       toast({
@@ -52,7 +53,7 @@ export const useAgentMemory = (projectId?: string, agentId?: string) => {
         .order('effectiveness_score', { ascending: false });
 
       if (error) throw error;
-      setExpertisePatterns(data || []);
+      setExpertisePatterns(data as AgentExpertisePattern[] || []);
     } catch (error) {
       console.error('Error fetching expertise patterns:', error);
       toast({
@@ -80,13 +81,14 @@ export const useAgentMemory = (projectId?: string, agentId?: string) => {
         .insert({
           ...memoryData,
           project_id: projectId,
+          context_data: memoryData.context_data as Json,
         })
         .select()
         .single();
 
       if (error) throw error;
       
-      setMemories(prev => [data, ...prev]);
+      setMemories(prev => [data as AgentMemoryContext, ...prev]);
       toast({
         title: 'Memory saved',
         description: 'Agent memory has been successfully recorded',
@@ -122,13 +124,17 @@ export const useAgentMemory = (projectId?: string, agentId?: string) => {
     try {
       const { data, error } = await supabase
         .from('agent_expertise_patterns')
-        .insert(patternData)
+        .insert({
+          ...patternData,
+          pattern_data: patternData.pattern_data as Json,
+          metadata: patternData.metadata as Json,
+        })
         .select()
         .single();
 
       if (error) throw error;
       
-      setExpertisePatterns(prev => [data, ...prev]);
+      setExpertisePatterns(prev => [data as AgentExpertisePattern, ...prev]);
       toast({
         title: 'Expertise pattern learned',
         description: 'Agent has successfully learned a new pattern',
