@@ -14,7 +14,6 @@ interface AgentStats {
   total_cost: number;
   memories_count: number;
   expertise_patterns_count: number;
-  task_assignments_count: number;
 }
 
 interface ManagerAgentStatusProps {
@@ -29,7 +28,6 @@ const ManagerAgentStatus: React.FC<ManagerAgentStatusProps> = ({ projectId }) =>
     total_cost: 0,
     memories_count: 0,
     expertise_patterns_count: 0,
-    task_assignments_count: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
@@ -65,15 +63,6 @@ const ManagerAgentStatus: React.FC<ManagerAgentStatusProps> = ({ projectId }) =>
         .eq('agent_id', 'manager_supreme');
 
       if (expertiseError) throw expertiseError;
-
-      // Fetch task assignments count
-      const { data: taskAssignments, error: taskError } = await supabase
-        .from('agent_task_assignments')
-        .select('id', { count: 'exact' })
-        .eq('assigned_by_agent_id', 'manager_supreme')
-        .match(projectFilter);
-
-      if (taskError) throw taskError;
 
       // Fetch chat messages for conversation stats
       let chatQuery = supabase
@@ -113,7 +102,6 @@ const ManagerAgentStatus: React.FC<ManagerAgentStatusProps> = ({ projectId }) =>
         total_cost: totalCost,
         memories_count: memories?.length || 0,
         expertise_patterns_count: expertisePatterns?.length || 0,
-        task_assignments_count: taskAssignments?.length || 0,
       });
 
     } catch (error) {
@@ -136,7 +124,7 @@ const ManagerAgentStatus: React.FC<ManagerAgentStatusProps> = ({ projectId }) =>
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFrb2NsZWh6ZW9jcWxnbW1ia3phIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1MjQxMDEsImV4cCI6MjA3MTEwMDEwMX0.XzDI8r_JkwUADi8pcev3irYSMWlCWEKkC0w5UWNX5zk`,
         },
         body: JSON.stringify({
           action: 'optimize_memory',
@@ -228,7 +216,7 @@ const ManagerAgentStatus: React.FC<ManagerAgentStatusProps> = ({ projectId }) =>
         </div>
 
         {/* Intelligence Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-accent/50 rounded-lg p-4 text-center">
             <div className="text-xl font-semibold">{stats.memories_count}</div>
             <div className="text-sm text-muted-foreground flex items-center justify-center gap-1">
@@ -243,11 +231,6 @@ const ManagerAgentStatus: React.FC<ManagerAgentStatusProps> = ({ projectId }) =>
               <TrendingUp className="w-3 h-3" />
               Expertise Patterns
             </div>
-          </div>
-
-          <div className="bg-accent/50 rounded-lg p-4 text-center">
-            <div className="text-xl font-semibold">{stats.task_assignments_count}</div>
-            <div className="text-sm text-muted-foreground">Task Assignments</div>
           </div>
         </div>
 

@@ -59,11 +59,22 @@ const ManagerAgentChat: React.FC<ManagerAgentChatProps> = ({
 
       if (error) throw error;
 
-      setMessages(data || []);
+      // Transform database messages to match our interface
+      const transformedMessages: ChatMessage[] = (data || []).map(msg => ({
+        id: msg.id,
+        content: msg.content,
+        sender_type: msg.sender_type === 'manager' ? 'agent' : msg.sender_type as 'user' | 'agent',
+        sender_agent_id: msg.sender_agent_id || undefined,
+        created_at: msg.created_at,
+        tokens_used: msg.tokens_used || 0,
+        cost: msg.cost || 0,
+      }));
+
+      setMessages(transformedMessages);
       
       // Calculate totals
-      const tokens = data?.reduce((sum, msg) => sum + (msg.tokens_used || 0), 0) || 0;
-      const cost = data?.reduce((sum, msg) => sum + (msg.cost || 0), 0) || 0;
+      const tokens = transformedMessages.reduce((sum, msg) => sum + (msg.tokens_used || 0), 0);
+      const cost = transformedMessages.reduce((sum, msg) => sum + (msg.cost || 0), 0);
       setTotalTokens(tokens);
       setTotalCost(cost);
     } catch (error) {
@@ -102,7 +113,7 @@ const ManagerAgentChat: React.FC<ManagerAgentChatProps> = ({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFrb2NsZWh6ZW9jcWxnbW1ia3phIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1MjQxMDEsImV4cCI6MjA3MTEwMDEwMX0.XzDI8r_JkwUADi8pcev3irYSMWlCWEKkC0w5UWNX5zk`,
         },
         body: JSON.stringify({
           action: 'chat',
