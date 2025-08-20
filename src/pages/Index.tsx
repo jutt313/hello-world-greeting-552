@@ -8,7 +8,7 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
       <div className="text-center">
         <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-4">
-          Welcome to Code-XI
+          Welcome to Code-XI 313
         </h1>
         <p className="text-slate-300 mb-8">
           AI-Powered Development Platform - Database Ready
