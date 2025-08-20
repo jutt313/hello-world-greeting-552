@@ -64,13 +64,25 @@ const FullStackEngineerStatus: React.FC<FullStackEngineerStatusProps> = ({ proje
         .eq('agent_id', 'fullstack_engineer')
         .eq('memory_type', 'learning');
 
+      // Safely parse activity details for bug fixes count
+      const bugFixCount = activities?.filter(a => {
+        if (a.activity_type === 'assigned_task' && a.details) {
+          try {
+            const details = typeof a.details === 'string' ? JSON.parse(a.details) : a.details;
+            return details && typeof details === 'object' && details.action === 'debug';
+          } catch {
+            return false;
+          }
+        }
+        return false;
+      }).length || 0;
+
       setStats({
         tasksCompleted: assignments?.reduce((sum, a) => sum + a.tasks_completed, 0) || 0,
         activeProjects: assignments?.filter(a => a.is_assigned).length || 0,
         codeFiles: memories?.filter(m => m.tags?.includes('implementation')).length || 0,
         testsWritten: memories?.filter(m => m.tags?.includes('testing')).length || 0,
-        bugsfixed: activities?.filter(a => a.activity_type === 'assigned_task' && 
-          a.details?.action === 'debug').length || 0,
+        bugsfixed: bugFixCount,
         performance: 95,
         availability: 100
       });
@@ -98,6 +110,21 @@ const FullStackEngineerStatus: React.FC<FullStackEngineerStatusProps> = ({ proje
     } catch (error) {
       console.error('Error fetching recent activity:', error);
     }
+  };
+
+  // Helper function to safely get action from details
+  const getActionFromDetails = (details: any): string => {
+    try {
+      if (typeof details === 'string') {
+        const parsed = JSON.parse(details);
+        return parsed?.action || 'Task execution';
+      } else if (details && typeof details === 'object') {
+        return details.action || 'Task execution';
+      }
+    } catch {
+      // Fall back to default
+    }
+    return 'Task execution';
   };
 
   const capabilities = [
@@ -271,7 +298,7 @@ const FullStackEngineerStatus: React.FC<FullStackEngineerStatusProps> = ({ proje
                   <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">
-                      {activity.details?.action || 'Task execution'} completed
+                      {getActionFromDetails(activity.details)} completed
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Project: {activity.projects?.name || 'Unknown'} • 
