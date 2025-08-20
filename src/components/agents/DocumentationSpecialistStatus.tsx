@@ -1,246 +1,205 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { supabase } from '@/integrations/supabase/client';
-import { FileText, BookOpen, Users, Globe, CheckCircle, AlertCircle, TrendingUp } from 'lucide-react';
+import { 
+  FileText, 
+  Book, 
+  Code, 
+  Users, 
+  TrendingUp,
+  Clock,
+  CheckCircle,
+  AlertCircle 
+} from 'lucide-react';
 
-interface DocumentationActivity {
-  id: string;
-  activity_type: string;
-  details: any;
-  created_at: string;
-}
-
-const DocumentationSpecialistStatus: React.FC = () => {
-  const [activities, setActivities] = useState<DocumentationActivity[]>([]);
-  const [metrics, setMetrics] = useState({
-    total_documents: 0,
-    api_docs: 0,
-    user_guides: 0,
-    tutorials: 0,
-    architecture_docs: 0,
-    accessibility_score: 0,
-    multilingual_coverage: 0,
-    user_satisfaction: 0
-  });
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    fetchDocumentationData();
-  }, []);
-
-  const fetchDocumentationData = async () => {
-    try {
-      // Fetch recent documentation activities
-      const { data: activitiesData } = await supabase
-        .from('agent_activity_logs')
-        .select('*')
-        .eq('agent_id', 'documentation_specialist')
-        .order('created_at', { ascending: false })
-        .limit(10);
-
-      if (activitiesData) {
-        setActivities(activitiesData);
-        
-        // Calculate metrics from activities
-        const docsByType = activitiesData.reduce((acc, activity) => {
-          const docType = activity.details?.documentation_type || 'general';
-          acc[docType] = (acc[docType] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>);
-
-        setMetrics({
-          total_documents: activitiesData.length,
-          api_docs: docsByType['api'] || 0,
-          user_guides: docsByType['user_guide'] || 0,
-          tutorials: docsByType['tutorial'] || 0,
-          architecture_docs: docsByType['architecture'] || 0,
-          accessibility_score: 94, // Simulated high accessibility score
-          multilingual_coverage: 76, // Simulated multilingual coverage
-          user_satisfaction: 92 // Simulated user satisfaction score
-        });
+export const DocumentationSpecialistStatus: React.FC = () => {
+  // Mock data - in real implementation, this would come from API
+  const agentStatus = {
+    status: 'active' as const,
+    currentTask: 'Generating API documentation for user authentication endpoints',
+    completedTasks: 147,
+    efficiency: 92,
+    lastActive: '2 minutes ago',
+    capabilities: [
+      'API Documentation',
+      'User Guides',
+      'Technical Tutorials',
+      'Code Documentation',
+      'Knowledge Management'
+    ],
+    recentActivities: [
+      {
+        id: '1',
+        type: 'api_documentation',
+        description: 'Generated OpenAPI specification for authentication API',
+        timestamp: '5 minutes ago',
+        status: 'completed'
+      },
+      {
+        id: '2', 
+        type: 'user_guide',
+        description: 'Created getting started guide with screenshots',
+        timestamp: '15 minutes ago',
+        status: 'completed'
+      },
+      {
+        id: '3',
+        type: 'tutorial',
+        description: 'Writing interactive tutorial for new users',
+        timestamp: '1 hour ago', 
+        status: 'in_progress'
       }
-      
-      setIsLoading(false);
-    } catch (error) {
-      console.error('Error fetching documentation data:', error);
-      setIsLoading(false);
+    ],
+    metrics: {
+      documentationGenerated: 89,
+      averageQualityScore: 94,
+      userSatisfaction: 87,
+      maintenanceEfficiency: 91
     }
   };
 
-  const getActivityIcon = (activityType: string) => {
-    switch (activityType) {
-      case 'api_documentation':
-        return <FileText className="w-4 h-4 text-blue-500" />;
-      case 'user_guide_creation':
-        return <BookOpen className="w-4 h-4 text-green-500" />;
-      case 'tutorial_development':
-        return <Users className="w-4 h-4 text-purple-500" />;
-      case 'documentation_translation':
-        return <Globe className="w-4 h-4 text-orange-500" />;
-      default:
-        return <FileText className="w-4 h-4 text-gray-500" />;
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return 'bg-green-500';
+      case 'busy': return 'bg-yellow-500';
+      case 'idle': return 'bg-gray-500';
+      default: return 'bg-gray-500';
     }
   };
 
-  const getStatusColor = (score: number) => {
-    if (score >= 90) return 'text-green-500';
-    if (score >= 75) return 'text-yellow-500';
-    return 'text-red-500';
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'api_documentation': return <Code className="w-4 h-4" />;
+      case 'user_guide': return <Book className="w-4 h-4" />;
+      case 'tutorial': return <Users className="w-4 h-4" />;
+      default: return <FileText className="w-4 h-4" />;
+    }
   };
 
-  if (isLoading) {
-    return (
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Agent Status Overview */}
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2">
-            <FileText className="w-5 h-5" />
-            Documentation Specialist Agent
+            <FileText className="w-5 h-5 text-blue-600" />
+            Documentation Specialist
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="animate-pulse">
-            <div className="h-4 bg-muted rounded w-3/4 mb-4"></div>
-            <div className="h-20 bg-muted rounded"></div>
+        <CardContent className="space-y-4">
+          <div className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${getStatusColor(agentStatus.status)}`} />
+            <span className="text-sm font-medium capitalize">{agentStatus.status}</span>
+            <Badge variant="secondary" className="ml-auto">
+              {agentStatus.completedTasks} completed
+            </Badge>
+          </div>
+          
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Efficiency</span>
+              <span>{agentStatus.efficiency}%</span>
+            </div>
+            <Progress value={agentStatus.efficiency} className="h-2" />
+          </div>
+
+          <div className="text-sm text-muted-foreground">
+            <Clock className="w-4 h-4 inline mr-1" />
+            Last active: {agentStatus.lastActive}
           </div>
         </CardContent>
       </Card>
-    );
-  }
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <FileText className="w-5 h-5 text-blue-500" />
-          Documentation Specialist Agent
-          <Badge variant="outline" className="ml-auto">
-            Technical Writer
-          </Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Key Metrics */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-500">{metrics.total_documents}</div>
-            <div className="text-xs text-muted-foreground">Total Docs</div>
+      {/* Current Task */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Current Task</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            <p className="text-sm">{agentStatus.currentTask}</p>
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-green-500" />
+              <span className="text-xs text-muted-foreground">In Progress</span>
+            </div>
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-500">{metrics.api_docs}</div>
-            <div className="text-xs text-muted-foreground">API Docs</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-purple-500">{metrics.user_guides}</div>
-            <div className="text-xs text-muted-foreground">User Guides</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-orange-500">{metrics.tutorials}</div>
-            <div className="text-xs text-muted-foreground">Tutorials</div>
-          </div>
-        </div>
+        </CardContent>
+      </Card>
 
-        {/* Quality Metrics */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between text-sm">
-            <span className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-green-500" />
-              Accessibility Score
-            </span>
-            <span className={`font-semibold ${getStatusColor(metrics.accessibility_score)}`}>
-              {metrics.accessibility_score}%
-            </span>
+      {/* Performance Metrics */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Performance Metrics</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <div className="font-medium">{agentStatus.metrics.documentationGenerated}</div>
+              <div className="text-muted-foreground text-xs">Docs Generated</div>
+            </div>
+            <div>
+              <div className="font-medium">{agentStatus.metrics.averageQualityScore}%</div>
+              <div className="text-muted-foreground text-xs">Quality Score</div>
+            </div>
+            <div>
+              <div className="font-medium">{agentStatus.metrics.userSatisfaction}%</div>
+              <div className="text-muted-foreground text-xs">User Satisfaction</div>
+            </div>
+            <div>
+              <div className="font-medium">{agentStatus.metrics.maintenanceEfficiency}%</div>
+              <div className="text-muted-foreground text-xs">Maintenance</div>
+            </div>
           </div>
-          <Progress value={metrics.accessibility_score} className="h-2" />
+        </CardContent>
+      </Card>
 
-          <div className="flex items-center justify-between text-sm">
-            <span className="flex items-center gap-2">
-              <Globe className="w-4 h-4 text-blue-500" />
-              Multilingual Coverage
-            </span>
-            <span className={`font-semibold ${getStatusColor(metrics.multilingual_coverage)}`}>
-              {metrics.multilingual_coverage}%
-            </span>
+      {/* Capabilities */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Core Capabilities</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2">
+            {agentStatus.capabilities.map((capability, index) => (
+              <Badge key={index} variant="outline" className="text-xs">
+                {capability}
+              </Badge>
+            ))}
           </div>
-          <Progress value={metrics.multilingual_coverage} className="h-2" />
+        </CardContent>
+      </Card>
 
-          <div className="flex items-center justify-between text-sm">
-            <span className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-purple-500" />
-              User Satisfaction
-            </span>
-            <span className={`font-semibold ${getStatusColor(metrics.user_satisfaction)}`}>
-              {metrics.user_satisfaction}%
-            </span>
-          </div>
-          <Progress value={metrics.user_satisfaction} className="h-2" />
-        </div>
-
-        {/* Recent Activities */}
-        <div className="space-y-2">
-          <h4 className="text-sm font-semibold flex items-center gap-2">
-            Recent Documentation Activities
-          </h4>
-          <div className="space-y-2 max-h-40 overflow-y-auto">
-            {activities.length > 0 ? (
-              activities.slice(0, 5).map((activity) => (
-                <div key={activity.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50">
-                  {getActivityIcon(activity.activity_type)}
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium truncate">
-                      {activity.details?.documentation_type || 'Documentation Task'}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {new Date(activity.created_at).toLocaleDateString()}
-                    </div>
-                  </div>
-                  <Badge variant="secondary" className="text-xs">
-                    {activity.details?.target_audience || 'General'}
-                  </Badge>
+      {/* Recent Activities */}
+      <Card className="md:col-span-2">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base">Recent Activities</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {agentStatus.recentActivities.map((activity) => (
+              <div key={activity.id} className="flex items-start gap-3 p-2 rounded-lg border">
+                <div className="mt-1">
+                  {getActivityIcon(activity.type)}
                 </div>
-              ))
-            ) : (
-              <div className="text-center py-4 text-sm text-muted-foreground">
-                No recent documentation activities
+                <div className="flex-1 space-y-1">
+                  <p className="text-sm">{activity.description}</p>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">{activity.timestamp}</span>
+                    {activity.status === 'completed' ? (
+                      <CheckCircle className="w-3 h-3 text-green-500" />
+                    ) : (
+                      <AlertCircle className="w-3 h-3 text-yellow-500" />
+                    )}
+                  </div>
+                </div>
               </div>
-            )}
+            ))}
           </div>
-        </div>
-
-        {/* Documentation Capabilities */}
-        <div className="pt-4 border-t">
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="flex items-center gap-1">
-              <CheckCircle className="w-3 h-3 text-green-500" />
-              <span>API Documentation</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <CheckCircle className="w-3 h-3 text-green-500" />
-              <span>User Guides</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <CheckCircle className="w-3 h-3 text-green-500" />
-              <span>Interactive Tutorials</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <CheckCircle className="w-3 h-3 text-green-500" />
-              <span>Architecture Docs</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <CheckCircle className="w-3 h-3 text-green-500" />
-              <span>Accessibility</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <CheckCircle className="w-3 h-3 text-green-500" />
-              <span>Localization</span>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

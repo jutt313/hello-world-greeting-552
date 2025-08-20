@@ -1,55 +1,39 @@
-
-import React, { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { FileText, Send, Bot, User, Loader2, BookOpen } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { useDocumentationSpecialist } from '@/hooks/useDocumentationSpecialist';
+import { Loader2, Send, FileText, Book, Code, Users } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Message {
   id: string;
   content: string;
   sender_type: 'user' | 'agent';
-  sender_agent_id?: string;
   created_at: string;
-  tokens_used: number;
-  cost: number;
 }
 
 interface DocumentationSpecialistChatProps {
   projectId: string;
-  projectName: string;
 }
 
-const DocumentationSpecialistChat: React.FC<DocumentationSpecialistChatProps> = ({
-  projectId,
-  projectName,
+export const DocumentationSpecialistChat: React.FC<DocumentationSpecialistChatProps> = ({
+  projectId
 }) => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [inputMessage, setInputMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [totalTokens, setTotalTokens] = useState(0);
-  const [totalCost, setTotalCost] = useState(0);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const [newMessage, setNewMessage] = useState('');
+  const { 
+    sendMessage, 
+    createDocumentation, 
+    generateAPIDocumentation,
+    isLoading 
+  } = useDocumentationSpecialist(projectId);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  useEffect(() => {
-    fetchChatHistory();
+    loadChatHistory();
   }, [projectId]);
 
-  const fetchChatHistory = async () => {
+  const loadChatHistory = async () => {
     try {
       const { data, error } = await supabase
         .from('chat_messages')
@@ -57,229 +41,159 @@ const DocumentationSpecialistChat: React.FC<DocumentationSpecialistChatProps> = 
         .eq('session_id', projectId)
         .order('created_at', { ascending: true });
 
-      if (error) throw error;
-
-      // Transform and filter messages for Documentation Specialist
-      const transformedMessages: Message[] = (data || [])
-        .filter(msg => msg.sender_type === 'user' || msg.sender_agent_id === 'documentation_specialist')
-        .map(msg => ({
-          id: msg.id,
-          content: msg.content,
-          sender_type: msg.sender_type === 'documentation_specialist' ? 'agent' : msg.sender_type as 'user' | 'agent',
-          sender_agent_id: msg.sender_agent_id || undefined,
-          created_at: msg.created_at,
-          tokens_used: msg.tokens_used || 0,
-          cost: msg.cost || 0,
-        }));
-
-      setMessages(transformedMessages);
-      
-      // Calculate totals
-      const tokens = transformedMessages.reduce((sum, msg) => sum + (msg.tokens_used || 0), 0);
-      const cost = transformedMessages.reduce((sum, msg) => sum + (msg.cost || 0), 0);
-      setTotalTokens(tokens);
-      setTotalCost(cost);
-    } catch (error) {
-      console.error('Error fetching chat history:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load chat history',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const sendMessage = async () => {
-    if (!inputMessage.trim() || isLoading) return;
-
-    setIsLoading(true);
-    const userMessage = inputMessage.trim();
-    setInputMessage('');
-
-    // Add user message to UI immediately
-    const tempUserMessage: Message = {
-      id: `temp-${Date.now()}`,
-      content: userMessage,
-      sender_type: 'user',
-      created_at: new Date().toISOString(),
-      tokens_used: 0,
-      cost: 0,
-    };
-    setMessages(prev => [...prev, tempUserMessage]);
-
-    try {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) throw new Error('User not authenticated');
-
-      const response = await fetch('https://akoclehzeocqlgmmbkza.supabase.co/functions/v1/documentation-specialist-execution', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFrb2NsZWh6ZW9jcWxnbW1ia3phIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1MjQxMDEsImV4cCI6MjA3MTEwMDEwMX0.XzDI8r_JkwUADi8pcev3irYSMWlCWEKkC0w5UWNX5zk`,
-        },
-        body: JSON.stringify({
-          action: 'chat',
-          user_id: user.user.id,
-          project_id: projectId,
-          message: userMessage,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to get response from Documentation Specialist Agent');
+      if (error) {
+        console.error('Error loading chat history:', error);
+        return;
       }
 
-      // Remove temp message and fetch updated chat history
-      setMessages(prev => prev.filter(msg => msg.id !== tempUserMessage.id));
-      await fetchChatHistory();
-
-      toast({
-        title: 'Documentation Specialist Response',
-        description: `Used ${result.tokens_used} tokens (Cost: $${result.cost.toFixed(4)})`,
-      });
-
+      if (data) {
+        const formattedMessages: Message[] = data.map(msg => ({
+          id: msg.id.toString(),
+          content: msg.content,
+          sender_type: msg.sender_type === 'user' ? 'user' : 'agent',
+          created_at: msg.created_at,
+        }));
+        setMessages(formattedMessages);
+      }
     } catch (error) {
-      console.error('Error sending message:', error);
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to send message',
-        variant: 'destructive',
-      });
-      
-      // Remove temp message on error
-      setMessages(prev => prev.filter(msg => msg.id !== tempUserMessage.id));
-    } finally {
-      setIsLoading(false);
+      console.error('Error loading chat history:', error);
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || isLoading) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      content: newMessage,
+      sender_type: 'user',
+      created_at: new Date().toISOString(),
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    const messageContent = newMessage;
+    setNewMessage('');
+
+    const response = await sendMessage(messageContent);
+    if (response?.success && response.response) {
+      const agentMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: response.response,
+        sender_type: 'agent',
+        created_at: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, agentMessage]);
+    }
+  };
+
+  const handleQuickAction = async (action: string, params?: string) => {
+    let response;
+    switch (action) {
+      case 'api-docs':
+        response = await generateAPIDocumentation(params || 'openapi');
+        break;
+      case 'user-guide':
+        response = await createDocumentation('user-guide', params || 'getting-started');
+        break;
+      case 'tutorial':
+        response = await createDocumentation('tutorial', params || 'basic-usage');
+        break;
+      default:
+        response = await sendMessage(`Execute ${action} ${params || ''}`.trim());
+    }
+
+    if (response?.success && response.response) {
+      const agentMessage: Message = {
+        id: Date.now().toString(),
+        content: response.response,
+        sender_type: 'agent',
+        created_at: new Date().toISOString(),
+      };
+      setMessages(prev => [...prev, agentMessage]);
     }
   };
 
   return (
-    <Card className="h-[800px] flex flex-col">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <FileText className="w-6 h-6 text-blue-500" />
-            <span className="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-              Documentation Specialist Agent
-            </span>
-          </div>
-          <Badge variant="outline" className="ml-auto">
-            Technical Writer
-          </Badge>
-        </CardTitle>
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-          <span>Project: {projectName}</span>
-          <span>•</span>
-          <span>Tokens: {totalTokens.toLocaleString()}</span>
-          <span>•</span>
-          <span>Cost: ${totalCost.toFixed(4)}</span>
+    <div className="flex flex-col h-[600px] border rounded-lg">
+      <div className="p-4 border-b bg-muted/50">
+        <div className="flex items-center gap-2">
+          <FileText className="w-5 h-5 text-blue-600" />
+          <h3 className="font-semibold">Documentation Specialist Agent</h3>
         </div>
-      </CardHeader>
+        <p className="text-sm text-muted-foreground mt-1">
+          Technical writing and knowledge management specialist
+        </p>
+      </div>
 
-      <CardContent className="flex-1 flex flex-col gap-4 p-4">
-        {/* Chat Messages */}
-        <ScrollArea className="flex-1 pr-4">
-          <div className="space-y-4">
-            {messages.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground">
-                <BookOpen className="w-12 h-12 mx-auto mb-4 text-primary/50" />
-                <h3 className="font-semibold mb-2">Welcome to Documentation Specialist</h3>
-                <p className="text-sm">
-                  I'm your technical writing and knowledge management specialist, ready to create comprehensive, 
-                  accessible documentation that enables your project's success. I can help with API docs, user guides, 
-                  tutorials, architecture documentation, and more.
-                </p>
-              </div>
-            )}
+      {/* Quick Actions */}
+      <div className="p-3 border-b bg-muted/30">
+        <div className="flex flex-wrap gap-2">
+          <Button 
+            size="sm" 
+            variant="outline"
+            onClick={() => handleQuickAction('api-docs')}
+            disabled={isLoading}
+          >
+            <Code className="w-3 h-3 mr-1" />
+            API Docs
+          </Button>
+          <Button 
+            size="sm" 
+            variant="outline"
+            onClick={() => handleQuickAction('user-guide')}
+            disabled={isLoading}
+          >
+            <Book className="w-3 h-3 mr-1" />
+            User Guide
+          </Button>
+          <Button 
+            size="sm" 
+            variant="outline"
+            onClick={() => handleQuickAction('tutorial')}
+            disabled={isLoading}
+          >
+            <Users className="w-3 h-3 mr-1" />
+            Tutorial
+          </Button>
+        </div>
+      </div>
 
-            {messages.map((message) => (
+      <ScrollArea className="flex-1 p-4">
+        <div className="space-y-4">
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex ${message.sender_type === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
               <div
-                key={message.id}
-                className={`flex gap-3 ${
-                  message.sender_type === 'user' ? 'justify-end' : 'justify-start'
+                className={`max-w-[80%] rounded-lg p-3 ${
+                  message.sender_type === 'user'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-foreground'
                 }`}
               >
-                {message.sender_type === 'agent' && (
-                  <Avatar className="w-8 h-8 border-2 border-blue-500/20">
-                    <AvatarFallback className="bg-gradient-to-br from-blue-400 to-purple-500 text-white text-xs">
-                      <FileText className="w-4 h-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-
-                <div
-                  className={`rounded-lg px-4 py-2 max-w-[80%] ${
-                    message.sender_type === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted'
-                  }`}
-                >
-                  <div className="whitespace-pre-wrap text-sm">
-                    {message.content}
-                  </div>
-                  
-                  {message.sender_type === 'agent' && (message.tokens_used > 0 || message.cost > 0) && (
-                    <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border/20 text-xs text-muted-foreground">
-                      <Bot className="w-3 h-3" />
-                      <span>{message.tokens_used} tokens</span>
-                      <span>•</span>
-                      <span>${message.cost.toFixed(4)}</span>
-                    </div>
-                  )}
-                </div>
-
-                {message.sender_type === 'user' && (
-                  <Avatar className="w-8 h-8">
-                    <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                      <User className="w-4 h-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                )}
+                <p className="text-sm">{message.content}</p>
+                <span className="text-xs opacity-70">
+                  {new Date(message.created_at).toLocaleTimeString()}
+                </span>
               </div>
-            ))}
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
 
-            {isLoading && (
-              <div className="flex gap-3 justify-start">
-                <Avatar className="w-8 h-8 border-2 border-blue-500/20">
-                  <AvatarFallback className="bg-gradient-to-br from-blue-400 to-purple-500 text-white text-xs">
-                    <FileText className="w-4 h-4" />
-                  </AvatarFallback>
-                </Avatar>
-                <div className="bg-muted rounded-lg px-4 py-2">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Documentation Specialist is creating comprehensive documentation...
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            <div ref={messagesEndRef} />
-          </div>
-        </ScrollArea>
-
-        {/* Message Input */}
+      <div className="p-4 border-t">
         <div className="flex gap-2">
           <Input
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Describe your documentation needs or ask about creating guides, tutorials, API docs..."
+            placeholder="Ask about documentation, guides, or tutorials..."
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
             disabled={isLoading}
-            className="flex-1"
           />
           <Button 
-            onClick={sendMessage} 
-            disabled={!inputMessage.trim() || isLoading}
+            onClick={handleSendMessage} 
+            disabled={isLoading || !newMessage.trim()}
             size="icon"
           >
             {isLoading ? (
@@ -289,14 +203,7 @@ const DocumentationSpecialistChat: React.FC<DocumentationSpecialistChatProps> = 
             )}
           </Button>
         </div>
-
-        <div className="text-xs text-muted-foreground text-center">
-          Documentation Specialist creates comprehensive, accessible documentation using your project's selected LLM provider.
-          All documentation work is optimized for usability, accessibility, and maintenance.
-        </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
-
-export default DocumentationSpecialistChat;
