@@ -228,7 +228,7 @@ const DevOpsEngineerStatus: React.FC = () => {
                           <span className="font-medium text-sm">
                             {getActionLabel(action)}
                           </span>
-                          <Badge variant="outline" size="sm">
+                          <Badge variant="outline" className="text-xs">
                             {activity.activity_type}
                           </Badge>
                         </div>

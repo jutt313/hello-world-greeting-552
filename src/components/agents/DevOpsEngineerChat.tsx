@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -64,7 +63,7 @@ const DevOpsEngineerChat: React.FC<DevOpsEngineerChatProps> = ({
       const transformedMessages: ChatMessage[] = (data || []).map(msg => ({
         id: msg.id,
         content: msg.content,
-        sender_type: msg.sender_type === 'devops_engineer' ? 'agent' : msg.sender_type as 'user' | 'agent',
+        sender_type: msg.sender_agent_id === 'devops_engineer' ? 'agent' : msg.sender_type as 'user' | 'agent',
         sender_agent_id: msg.sender_agent_id || undefined,
         created_at: msg.created_at,
         tokens_used: msg.tokens_used || 0,
