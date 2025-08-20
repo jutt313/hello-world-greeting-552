@@ -53,7 +53,7 @@ const SecurityEngineerStatus: React.FC<SecurityEngineerStatusProps> = ({ project
       }
 
       // Fetch memories count
-      const { data: memories, error: memoriesError } = await supabaseClient
+      const { data: memories, error: memoriesError } = await supabase
         .from('agent_memory_contexts')
         .select('id', { count: 'exact' })
         .eq('agent_id', 'security_engineer')
@@ -62,7 +62,7 @@ const SecurityEngineerStatus: React.FC<SecurityEngineerStatusProps> = ({ project
       if (memoriesError) throw memoriesError;
 
       // Fetch expertise patterns count
-      const { data: expertisePatterns, error: expertiseError } = await supabaseClient
+      const { data: expertisePatterns, error: expertiseError } = await supabase
         .from('agent_expertise_patterns')
         .select('id', { count: 'exact' })
         .eq('agent_id', 'security_engineer');
@@ -95,11 +95,21 @@ const SecurityEngineerStatus: React.FC<SecurityEngineerStatusProps> = ({ project
       const { data: activities, error: activitiesError } = await activityQuery;
       if (activitiesError) throw activitiesError;
 
-      // Calculate security-specific metrics
-      const securityAssessments = activities?.filter(a => a.activity_type === 'security_assessment').length || 0;
-      const vulnerabilityScans = activities?.filter(a => a.activity_type === 'vulnerability_scan').length || 0;
-      const complianceChecks = activities?.filter(a => a.activity_type === 'compliance_check').length || 0;
-      const threatModels = activities?.filter(a => a.activity_type === 'threat_modeling').length || 0;
+      // Calculate security-specific metrics from activity details
+      let securityAssessments = 0;
+      let vulnerabilityScans = 0;
+      let complianceChecks = 0;
+      let threatModels = 0;
+
+      activities?.forEach(activity => {
+        if (activity.details && typeof activity.details === 'object') {
+          const details = activity.details as any;
+          if (details.action_type === 'security_assessment') securityAssessments++;
+          if (details.action_type === 'vulnerability_scan') vulnerabilityScans++;
+          if (details.action_type === 'compliance_check') complianceChecks++;
+          if (details.action_type === 'threat_modeling') threatModels++;
+        }
+      });
 
       // Calculate totals
       const totalTokens = chatMessages?.reduce((sum, msg) => sum + (msg.tokens_used || 0), 0) || 0;
@@ -153,25 +163,29 @@ const SecurityEngineerStatus: React.FC<SecurityEngineerStatusProps> = ({ project
     }
   };
 
-  const getActivityIcon = (activityType: string) => {
-    switch (activityType) {
-      case 'security_assessment':
-        return <Shield className="w-4 h-4" />;
-      case 'vulnerability_scan':
-        return <AlertTriangle className="w-4 h-4" />;
-      case 'compliance_check':
-        return <CheckCircle className="w-4 h-4" />;
-      case 'threat_modeling':
-        return <Eye className="w-4 h-4" />;
-      default:
-        return <Activity className="w-4 h-4" />;
+  const getActivityIcon = (activity: any) => {
+    if (activity.details && typeof activity.details === 'object') {
+      const details = activity.details as any;
+      switch (details.action_type) {
+        case 'security_assessment':
+          return <Shield className="w-4 h-4" />;
+        case 'vulnerability_scan':
+          return <AlertTriangle className="w-4 h-4" />;
+        case 'compliance_check':
+          return <CheckCircle className="w-4 h-4" />;
+        case 'threat_modeling':
+          return <Eye className="w-4 h-4" />;
+        default:
+          return <Activity className="w-4 h-4" />;
+      }
     }
+    return <Activity className="w-4 h-4" />;
   };
 
   const getActionLabel = (activity: any) => {
-    const details = activity.details;
-    if (typeof details === 'object' && details !== null) {
-      return details.action || activity.activity_type;
+    if (activity.details && typeof activity.details === 'object') {
+      const details = activity.details as any;
+      return details.action_type || details.action || activity.activity_type;
     }
     return activity.activity_type;
   };
@@ -295,7 +309,7 @@ const SecurityEngineerStatus: React.FC<SecurityEngineerStatusProps> = ({ project
             <div className="space-y-2">
               {recentActivities.slice(0, 3).map((activity) => (
                 <div key={activity.id} className="flex items-center gap-3 p-2 rounded-lg bg-accent/30">
-                  {getActivityIcon(activity.activity_type)}
+                  {getActivityIcon(activity)}
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <span className="font-medium text-sm">
