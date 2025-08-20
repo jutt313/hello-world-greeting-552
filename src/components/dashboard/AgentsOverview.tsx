@@ -5,6 +5,7 @@ import { AgentWorkflowCard } from '@/components/agents/AgentWorkflowCard';
 import ManagerAgentStatus from '@/components/agents/ManagerAgentStatus';
 import FullStackEngineerStatus from '@/components/agents/FullStackEngineerStatus';
 import DevOpsEngineerStatus from '@/components/agents/DevOpsEngineerStatus';
+import SecurityEngineerStatus from '@/components/agents/SecurityEngineerStatus';
 
 export const AgentsOverview: React.FC = () => {
   return (
@@ -12,6 +13,7 @@ export const AgentsOverview: React.FC = () => {
       <ManagerAgentStatus />
       <FullStackEngineerStatus />
       <DevOpsEngineerStatus />
+      <SecurityEngineerStatus />
       <AgentsSection />
       <AgentWorkflowCard />
     </div>
