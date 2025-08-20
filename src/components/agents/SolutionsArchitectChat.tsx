@@ -33,7 +33,9 @@ const SolutionsArchitectChat: React.FC<SolutionsArchitectChatProps> = ({ project
     analyzeArchitecture, 
     designSystem, 
     evaluateTechnology, 
-    createADR, 
+    createADR,
+    designAPI,
+    planMigration,
     isLoading 
   } = useSolutionsArchitect(projectId);
 
@@ -138,6 +140,12 @@ const SolutionsArchitectChat: React.FC<SolutionsArchitectChatProps> = ({ project
       case 'adr':
         response = await createADR('Microservices vs Monolithic architecture decision');
         break;
+      case 'api':
+        response = await designAPI('RESTful API with GraphQL capabilities');
+        break;
+      case 'migration':
+        response = await planMigration('Monolithic architecture', 'Microservices architecture');
+        break;
       default:
         response = await sendMessage(prompt);
     }
@@ -218,6 +226,22 @@ const SolutionsArchitectChat: React.FC<SolutionsArchitectChatProps> = ({ project
             disabled={isLoading}
           >
             Create ADR
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleQuickAction('api', 'Design API architecture')}
+            disabled={isLoading}
+          >
+            Design API
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleQuickAction('migration', 'Plan system migration')}
+            disabled={isLoading}
+          >
+            Plan Migration
           </Button>
         </div>
 

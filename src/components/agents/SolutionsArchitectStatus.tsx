@@ -12,6 +12,7 @@ interface AgentStats {
   architecture_reviews: number;
   technology_evaluations: number;
   adrs_created: number;
+  api_designs: number;
   total_tokens_used: number;
   total_cost: number;
   memories_count: number;
@@ -28,6 +29,7 @@ const SolutionsArchitectStatus: React.FC<SolutionsArchitectStatusProps> = ({ pro
     architecture_reviews: 0,
     technology_evaluations: 0,
     adrs_created: 0,
+    api_designs: 0,
     total_tokens_used: 0,
     total_cost: 0,
     memories_count: 0,
@@ -100,14 +102,16 @@ const SolutionsArchitectStatus: React.FC<SolutionsArchitectStatusProps> = ({ pro
       let architectureReviews = 0;
       let technologyEvaluations = 0;
       let adrsCreated = 0;
+      let apiDesigns = 0;
 
       activities?.forEach(activity => {
         if (activity.details && typeof activity.details === 'object') {
           const details = activity.details as any;
-          if (details.action_type === 'design_system') systemDesigns++;
-          if (details.action_type === 'analyze_architecture') architectureReviews++;
-          if (details.action_type === 'evaluate_technology') technologyEvaluations++;
-          if (details.action_type === 'create_adr') adrsCreated++;
+          if (details.action === 'design_system') systemDesigns++;
+          if (details.action === 'analyze_architecture') architectureReviews++;
+          if (details.action === 'evaluate_technology') technologyEvaluations++;
+          if (details.action === 'create_adr') adrsCreated++;
+          if (details.action === 'design_api') apiDesigns++;
         }
       });
 
@@ -120,6 +124,7 @@ const SolutionsArchitectStatus: React.FC<SolutionsArchitectStatusProps> = ({ pro
         architecture_reviews: architectureReviews,
         technology_evaluations: technologyEvaluations,
         adrs_created: adrsCreated,
+        api_designs: apiDesigns,
         total_tokens_used: totalTokens,
         total_cost: totalCost,
         memories_count: memories?.length || 0,
@@ -166,7 +171,7 @@ const SolutionsArchitectStatus: React.FC<SolutionsArchitectStatusProps> = ({ pro
   const getActivityIcon = (activity: any) => {
     if (activity.details && typeof activity.details === 'object') {
       const details = activity.details as any;
-      switch (details.action_type) {
+      switch (details.action) {
         case 'design_system':
           return <Building2 className="w-4 h-4" />;
         case 'analyze_architecture':
@@ -175,6 +180,8 @@ const SolutionsArchitectStatus: React.FC<SolutionsArchitectStatusProps> = ({ pro
           return <GitBranch className="w-4 h-4" />;
         case 'create_adr':
           return <FileText className="w-4 h-4" />;
+        case 'design_api':
+          return <Cloud className="w-4 h-4" />;
         default:
           return <Activity className="w-4 h-4" />;
       }
@@ -185,7 +192,7 @@ const SolutionsArchitectStatus: React.FC<SolutionsArchitectStatusProps> = ({ pro
   const getActionLabel = (activity: any) => {
     if (activity.details && typeof activity.details === 'object') {
       const details = activity.details as any;
-      return details.action_type || details.action || activity.activity_type;
+      return details.action || activity.activity_type;
     }
     return activity.activity_type;
   };
@@ -221,7 +228,7 @@ const SolutionsArchitectStatus: React.FC<SolutionsArchitectStatusProps> = ({ pro
 
       <CardContent className="space-y-6">
         {/* Architecture Statistics */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <div className="text-center">
             <div className="text-2xl font-bold text-primary">{stats.total_designs}</div>
             <div className="text-sm text-muted-foreground flex items-center justify-center gap-1">
@@ -251,6 +258,14 @@ const SolutionsArchitectStatus: React.FC<SolutionsArchitectStatusProps> = ({ pro
             <div className="text-sm text-muted-foreground flex items-center justify-center gap-1">
               <FileText className="w-3 h-3" />
               ADRs Created
+            </div>
+          </div>
+
+          <div className="text-center">
+            <div className="text-2xl font-bold text-primary">{stats.api_designs}</div>
+            <div className="text-sm text-muted-foreground flex items-center justify-center gap-1">
+              <Cloud className="w-3 h-3" />
+              API Designs
             </div>
           </div>
         </div>

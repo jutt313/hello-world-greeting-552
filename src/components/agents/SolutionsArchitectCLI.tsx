@@ -27,7 +27,15 @@ const SolutionsArchitectCLI: React.FC<SolutionsArchitectCLIProps> = ({ projectId
     analyzeArchitecture, 
     designSystem, 
     evaluateTechnology, 
-    createADR, 
+    createADR,
+    designAPI,
+    planMigration,
+    generateDocs,
+    designIntegration,
+    planDeployment,
+    assessScalability,
+    reviewPerformance,
+    auditSecurity,
     sendMessage 
   } = useSolutionsArchitect(projectId);
 
@@ -58,7 +66,7 @@ const SolutionsArchitectCLI: React.FC<SolutionsArchitectCLIProps> = ({ projectId
           addOutput([
             '├─ Available Commands:',
             '├─ analyze-architecture [path] - Analyze system architecture',
-            '├─ design-system [requirements] - Design system architecture',
+            '├─ design-system [requirements] - Design comprehensive system architecture',
             '├─ evaluate-technology [stack] - Evaluate technology stack',
             '├─ create-adr [decision] - Create Architecture Decision Record',
             '├─ design-api [spec] - Design API architecture',
@@ -137,7 +145,7 @@ const SolutionsArchitectCLI: React.FC<SolutionsArchitectCLIProps> = ({ projectId
         case 'design-api':
           const apiSpec = args.join(' ') || 'RESTful API specification';
           addOutput(`├─ Designing API: ${apiSpec}`);
-          const apiResult = await sendMessage(`Please design an API architecture for: ${apiSpec}`);
+          const apiResult = await designAPI(apiSpec);
           if (apiResult) {
             addOutput([
               '├─ API Design Complete:',
@@ -153,7 +161,7 @@ const SolutionsArchitectCLI: React.FC<SolutionsArchitectCLIProps> = ({ projectId
           const fromSystem = args[0] || 'current';
           const toSystem = args[1] || 'target';
           addOutput(`├─ Planning migration from ${fromSystem} to ${toSystem}`);
-          const migrationResult = await sendMessage(`Please plan a migration strategy from ${fromSystem} to ${toSystem}`);
+          const migrationResult = await planMigration(fromSystem, toSystem);
           if (migrationResult) {
             addOutput([
               '├─ Migration Plan Complete:',
@@ -165,10 +173,55 @@ const SolutionsArchitectCLI: React.FC<SolutionsArchitectCLIProps> = ({ projectId
           }
           break;
 
+        case 'generate-docs':
+          const component = args.join(' ') || 'system architecture';
+          addOutput(`├─ Generating documentation for: ${component}`);
+          const docsResult = await generateDocs(component);
+          if (docsResult) {
+            addOutput([
+              '├─ Documentation Generation Complete:',
+              `├─ Tokens Used: ${docsResult.tokens_used}`,
+              `├─ Cost: $${docsResult.cost.toFixed(4)}`,
+              '├─ Generated Documentation:',
+              ...docsResult.response.split('\n').map(line => `│  ${line}`)
+            ]);
+          }
+          break;
+
+        case 'design-integration':
+          const systems = args.join(' ') || 'system components';
+          addOutput(`├─ Designing integration for: ${systems}`);
+          const integrationResult = await designIntegration(systems);
+          if (integrationResult) {
+            addOutput([
+              '├─ Integration Design Complete:',
+              `├─ Tokens Used: ${integrationResult.tokens_used}`,
+              `├─ Cost: $${integrationResult.cost.toFixed(4)}`,
+              '├─ Integration Architecture:',
+              ...integrationResult.response.split('\n').map(line => `│  ${line}`)
+            ]);
+          }
+          break;
+
+        case 'plan-deployment':
+          const architecture = args.join(' ') || 'application architecture';
+          addOutput(`├─ Planning deployment for: ${architecture}`);
+          const deploymentResult = await planDeployment(architecture);
+          if (deploymentResult) {
+            addOutput([
+              '├─ Deployment Plan Complete:',
+              `├─ Tokens Used: ${deploymentResult.tokens_used}`,
+              `├─ Cost: $${deploymentResult.cost.toFixed(4)}`,
+              '├─ Deployment Strategy:',
+              ...deploymentResult.response.split('\n').map(line => `│  ${line}`)
+            ]);
+          }
+          break;
+
         case 'assess-scalability':
-          const component = args.join(' ') || 'system components';
-          addOutput(`├─ Assessing scalability of: ${component}`);
-          const scalabilityResult = await sendMessage(`Please assess the scalability of: ${component}`);
+          const scalabilityComponent = args.join(' ') || 'system components';
+          addOutput(`├─ Assessing scalability of: ${scalabilityComponent}`);
+          const scalabilityResult = await assessScalability(scalabilityComponent);
           if (scalabilityResult) {
             addOutput([
               '├─ Scalability Assessment Complete:',
@@ -176,6 +229,36 @@ const SolutionsArchitectCLI: React.FC<SolutionsArchitectCLIProps> = ({ projectId
               `├─ Cost: $${scalabilityResult.cost.toFixed(4)}`,
               '├─ Scalability Analysis:',
               ...scalabilityResult.response.split('\n').map(line => `│  ${line}`)
+            ]);
+          }
+          break;
+
+        case 'review-performance':
+          const perfSystem = args.join(' ') || 'system architecture';
+          addOutput(`├─ Reviewing performance of: ${perfSystem}`);
+          const performanceResult = await reviewPerformance(perfSystem);
+          if (performanceResult) {
+            addOutput([
+              '├─ Performance Review Complete:',
+              `├─ Tokens Used: ${performanceResult.tokens_used}`,
+              `├─ Cost: $${performanceResult.cost.toFixed(4)}`,
+              '├─ Performance Analysis:',
+              ...performanceResult.response.split('\n').map(line => `│  ${line}`)
+            ]);
+          }
+          break;
+
+        case 'audit-security':
+          const secArch = args.join(' ') || 'security architecture';
+          addOutput(`├─ Auditing security of: ${secArch}`);
+          const securityResult = await auditSecurity(secArch);
+          if (securityResult) {
+            addOutput([
+              '├─ Security Audit Complete:',
+              `├─ Tokens Used: ${securityResult.tokens_used}`,
+              `├─ Cost: $${securityResult.cost.toFixed(4)}`,
+              '├─ Security Analysis:',
+              ...securityResult.response.split('\n').map(line => `│  ${line}`)
             ]);
           }
           break;
@@ -298,7 +381,7 @@ const SolutionsArchitectCLI: React.FC<SolutionsArchitectCLIProps> = ({ projectId
             />
           </div>
           <div className="mt-2 text-xs text-muted-foreground">
-            Available: analyze-architecture, design-system, evaluate-technology, create-adr, design-api, assess-scalability
+            Available: analyze-architecture, design-system, evaluate-technology, create-adr, design-api, plan-migration
           </div>
         </div>
       </CardContent>
