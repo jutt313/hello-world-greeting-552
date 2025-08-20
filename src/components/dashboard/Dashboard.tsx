@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { MetricCards } from "@/components/dashboard/MetricCards";
 import { ChartsSection } from "@/components/dashboard/ChartsSection";
 import { ProjectsTable } from "@/components/dashboard/ProjectsTable";
+import { AgentsOverview } from "@/components/dashboard/AgentsOverview";
 import LLMProvidersPopup from "@/components/llm/LLMProvidersPopup";
 import DocumentationPopup from "@/components/popups/DocumentationPopup";
 import CLISetupPopup from "@/components/popups/CLISetupPopup";
@@ -57,7 +58,7 @@ const Dashboard = () => {
               Code-XI
             </h1>
             <p className="text-slate-400 text-sm">
-              Build, deploy, and scale AI-powered applications effortlessly
+              8-Agent AI Development Team - Build, Test, Deploy Complete Applications
             </p>
           </div>
           
@@ -106,6 +107,7 @@ const Dashboard = () => {
         {/* Main Content */}
         <main className="p-6 space-y-8">
           <MetricCards />
+          <AgentsOverview />
           <ChartsSection />
           <ProjectsTable />
         </main>
