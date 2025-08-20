@@ -56,6 +56,237 @@ export type Database = {
           },
         ]
       }
+      agent_expertise_patterns: {
+        Row: {
+          agent_id: string
+          created_at: string | null
+          effectiveness_score: number | null
+          expertise_category: Database["public"]["Enums"]["expertise_category"]
+          id: string
+          last_applied_at: string | null
+          metadata: Json | null
+          pattern_data: Json
+          pattern_description: string | null
+          pattern_name: string
+          projects_applied: string[] | null
+          success_rate: number | null
+          updated_at: string | null
+          usage_count: number | null
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string | null
+          effectiveness_score?: number | null
+          expertise_category: Database["public"]["Enums"]["expertise_category"]
+          id?: string
+          last_applied_at?: string | null
+          metadata?: Json | null
+          pattern_data?: Json
+          pattern_description?: string | null
+          pattern_name: string
+          projects_applied?: string[] | null
+          success_rate?: number | null
+          updated_at?: string | null
+          usage_count?: number | null
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string | null
+          effectiveness_score?: number | null
+          expertise_category?: Database["public"]["Enums"]["expertise_category"]
+          id?: string
+          last_applied_at?: string | null
+          metadata?: Json | null
+          pattern_data?: Json
+          pattern_description?: string | null
+          pattern_name?: string
+          projects_applied?: string[] | null
+          success_rate?: number | null
+          updated_at?: string | null
+          usage_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_expertise_patterns_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_knowledge_sharing: {
+        Row: {
+          acknowledged_at: string | null
+          created_at: string | null
+          id: string
+          knowledge_data: Json
+          knowledge_type: string
+          project_context: string | null
+          relevance_score: number | null
+          shared_by_manager: boolean | null
+          source_agent_id: string
+          target_agent_id: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          created_at?: string | null
+          id?: string
+          knowledge_data?: Json
+          knowledge_type: string
+          project_context?: string | null
+          relevance_score?: number | null
+          shared_by_manager?: boolean | null
+          source_agent_id: string
+          target_agent_id: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          created_at?: string | null
+          id?: string
+          knowledge_data?: Json
+          knowledge_type?: string
+          project_context?: string | null
+          relevance_score?: number | null
+          shared_by_manager?: boolean | null
+          source_agent_id?: string
+          target_agent_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_knowledge_sharing_project_context_fkey"
+            columns: ["project_context"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_knowledge_sharing_source_agent_id_fkey"
+            columns: ["source_agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_knowledge_sharing_target_agent_id_fkey"
+            columns: ["target_agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_memory_contexts: {
+        Row: {
+          agent_id: string
+          context_data: Json
+          context_key: string
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          last_accessed_at: string | null
+          memory_type: Database["public"]["Enums"]["memory_type"]
+          project_id: string
+          related_message_id: string | null
+          relevance_score: number | null
+          tags: string[] | null
+        }
+        Insert: {
+          agent_id: string
+          context_data?: Json
+          context_key: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          last_accessed_at?: string | null
+          memory_type: Database["public"]["Enums"]["memory_type"]
+          project_id: string
+          related_message_id?: string | null
+          relevance_score?: number | null
+          tags?: string[] | null
+        }
+        Update: {
+          agent_id?: string
+          context_data?: Json
+          context_key?: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          last_accessed_at?: string | null
+          memory_type?: Database["public"]["Enums"]["memory_type"]
+          project_id?: string
+          related_message_id?: string | null
+          relevance_score?: number | null
+          tags?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_memory_contexts_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_memory_contexts_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_memory_contexts_related_message_id_fkey"
+            columns: ["related_message_id"]
+            isOneToOne: false
+            referencedRelation: "chat_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_memory_optimization: {
+        Row: {
+          agent_id: string
+          created_at: string | null
+          id: string
+          memories_archived: number | null
+          memories_compressed: number | null
+          memories_processed: number | null
+          optimization_summary: Json | null
+          optimization_type: string
+          space_saved_bytes: number | null
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string | null
+          id?: string
+          memories_archived?: number | null
+          memories_compressed?: number | null
+          memories_processed?: number | null
+          optimization_summary?: Json | null
+          optimization_type: string
+          space_saved_bytes?: number | null
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string | null
+          id?: string
+          memories_archived?: number | null
+          memories_compressed?: number | null
+          memories_processed?: number | null
+          optimization_summary?: Json | null
+          optimization_type?: string
+          space_saved_bytes?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_memory_optimization_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agents: {
         Row: {
           created_at: string
@@ -888,7 +1119,24 @@ export type Database = {
         | "technical_writer"
         | "tech_lead"
       alert_type: "daily_threshold" | "project_threshold" | "monthly_threshold"
+      expertise_category:
+        | "frontend"
+        | "backend"
+        | "database"
+        | "devops"
+        | "testing"
+        | "security"
+        | "performance"
+        | "architecture"
       llm_provider_name: "openai" | "anthropic" | "google" | "cohere"
+      memory_type:
+        | "conversation"
+        | "task"
+        | "code_change"
+        | "decision"
+        | "learning"
+        | "error"
+        | "success"
       message_type: "text" | "file_operation" | "code_change" | "system"
       notification_type:
         | "agent_action"
@@ -1068,7 +1316,26 @@ export const Constants = {
         "tech_lead",
       ],
       alert_type: ["daily_threshold", "project_threshold", "monthly_threshold"],
+      expertise_category: [
+        "frontend",
+        "backend",
+        "database",
+        "devops",
+        "testing",
+        "security",
+        "performance",
+        "architecture",
+      ],
       llm_provider_name: ["openai", "anthropic", "google", "cohere"],
+      memory_type: [
+        "conversation",
+        "task",
+        "code_change",
+        "decision",
+        "learning",
+        "error",
+        "success",
+      ],
       message_type: ["text", "file_operation", "code_change", "system"],
       notification_type: [
         "agent_action",
