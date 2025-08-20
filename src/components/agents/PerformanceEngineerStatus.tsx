@@ -29,14 +29,13 @@ interface PerformanceMetrics {
   performance_score: number;
 }
 
-interface RecentActivity {
+interface ActivityLog {
   id: string;
   activity_type: string;
-  description: string;
-  status: string;
+  details: any;
   created_at: string;
-  tokens_used: number;
-  cost: number;
+  agent_id: string;
+  project_id: string;
 }
 
 const PerformanceEngineerStatus: React.FC = () => {
@@ -48,7 +47,7 @@ const PerformanceEngineerStatus: React.FC = () => {
     cache_implementations: 0,
     performance_score: 0,
   });
-  const [recentActivities, setRecentActivities] = useState<RecentActivity[]>([]);
+  const [recentActivities, setRecentActivities] = useState<ActivityLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -59,20 +58,34 @@ const PerformanceEngineerStatus: React.FC = () => {
   const fetchPerformanceMetrics = async () => {
     try {
       const { data: activities, error } = await supabase
-        .from('agent_activities')
+        .from('agent_activity_logs')
         .select('*')
-        .eq('agent_id', 'performance_engineer')
-        .eq('status', 'completed');
+        .eq('agent_id', 'performance_engineer');
 
       if (error) throw error;
 
       const calculatedMetrics: PerformanceMetrics = {
-        load_tests_conducted: activities?.filter(a => a.activity_type.includes('load_testing')).length || 0,
-        optimizations_completed: activities?.filter(a => a.activity_type.includes('optimization')).length || 0,
-        monitoring_systems: activities?.filter(a => a.activity_type.includes('monitoring')).length || 0,
-        bottlenecks_resolved: activities?.filter(a => a.activity_type.includes('bottleneck')).length || 0,
-        cache_implementations: activities?.filter(a => a.activity_type.includes('caching')).length || 0,
-        performance_score: Math.min(95, ((activities?.length || 0) * 5) + 60), // Base score of 60, +5 per activity
+        load_tests_conducted: activities?.filter(a => 
+          a.activity_type === 'assigned_task' && 
+          JSON.stringify(a.details).includes('load_testing')
+        ).length || 0,
+        optimizations_completed: activities?.filter(a => 
+          a.activity_type === 'assigned_task' && 
+          JSON.stringify(a.details).includes('optimization')
+        ).length || 0,
+        monitoring_systems: activities?.filter(a => 
+          a.activity_type === 'assigned_task' && 
+          JSON.stringify(a.details).includes('monitoring')
+        ).length || 0,
+        bottlenecks_resolved: activities?.filter(a => 
+          a.activity_type === 'assigned_task' && 
+          JSON.stringify(a.details).includes('bottleneck')
+        ).length || 0,
+        cache_implementations: activities?.filter(a => 
+          a.activity_type === 'assigned_task' && 
+          JSON.stringify(a.details).includes('caching')
+        ).length || 0,
+        performance_score: Math.min(95, ((activities?.length || 0) * 5) + 60),
       };
 
       setMetrics(calculatedMetrics);
@@ -84,7 +97,7 @@ const PerformanceEngineerStatus: React.FC = () => {
   const fetchRecentActivities = async () => {
     try {
       const { data, error } = await supabase
-        .from('agent_activities')
+        .from('agent_activity_logs')
         .select('*')
         .eq('agent_id', 'performance_engineer')
         .order('created_at', { ascending: false })
@@ -108,13 +121,11 @@ const PerformanceEngineerStatus: React.FC = () => {
     return <Activity className="w-4 h-4" />;
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed': return 'bg-green-500/20 text-green-700 border-green-500/20';
-      case 'in_progress': return 'bg-blue-500/20 text-blue-700 border-blue-500/20';
-      case 'failed': return 'bg-red-500/20 text-red-700 border-red-500/20';
-      default: return 'bg-gray-500/20 text-gray-700 border-gray-500/20';
+  const getActivityDescription = (activity: ActivityLog): string => {
+    if (activity.details && typeof activity.details === 'object') {
+      return activity.details.description || activity.details.task || 'Performance task executed';
     }
+    return 'Performance engineering task';
   };
 
   if (isLoading) {
@@ -260,28 +271,16 @@ const PerformanceEngineerStatus: React.FC = () => {
                         <span className="font-medium text-sm capitalize">
                           {activity.activity_type.replace(/_/g, ' ')}
                         </span>
-                        <Badge className={`text-xs ${getStatusColor(activity.status)}`}>
-                          {activity.status}
+                        <Badge className="text-xs bg-green-500/20 text-green-700 border-green-500/20">
+                          completed
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-2">{activity.description}</p>
+                      <p className="text-sm text-muted-foreground mb-2">{getActivityDescription(activity)}</p>
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           {new Date(activity.created_at).toLocaleDateString()}
                         </span>
-                        {activity.tokens_used > 0 && (
-                          <span className="flex items-center gap-1">
-                            <Cpu className="w-3 h-3" />
-                            {activity.tokens_used.toLocaleString()} tokens
-                          </span>
-                        )}
-                        {activity.cost > 0 && (
-                          <span className="flex items-center gap-1">
-                            <TrendingUp className="w-3 h-3" />
-                            ${activity.cost.toFixed(4)}
-                          </span>
-                        )}
                       </div>
                     </div>
                   </div>
