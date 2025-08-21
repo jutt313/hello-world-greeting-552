@@ -44,12 +44,31 @@ export const useProjectTemplates = () => {
         return;
       }
 
-      const processedTemplates = data?.map(template => ({
-        ...template,
-        // Ensure dependencies is properly formatted
+      const processedTemplates: ProjectTemplate[] = data?.map(template => ({
+        id: template.id,
+        name: template.name || '',
+        description: template.description || '',
+        template_type: template.template_type || '',
+        programming_language: template.programming_language || '',
+        framework: template.framework || '',
+        template_structure: typeof template.template_structure === 'string' 
+          ? JSON.parse(template.template_structure) 
+          : (template.template_structure as Record<string, any>) || {},
+        default_files: typeof template.default_files === 'string'
+          ? JSON.parse(template.default_files)
+          : (template.default_files as Record<string, string>) || {},
         dependencies: typeof template.dependencies === 'string' 
           ? JSON.parse(template.dependencies) 
-          : template.dependencies || {}
+          : (template.dependencies as Record<string, string> | string[]) || {},
+        build_commands: typeof template.build_commands === 'string'
+          ? JSON.parse(template.build_commands)
+          : (template.build_commands as Record<string, string>) || {},
+        deployment_config: typeof template.deployment_config === 'string'
+          ? JSON.parse(template.deployment_config)
+          : (template.deployment_config as Record<string, any>) || {},
+        is_active: template.is_active,
+        created_at: template.created_at,
+        updated_at: template.updated_at,
       })) || [];
 
       setTemplates(processedTemplates);

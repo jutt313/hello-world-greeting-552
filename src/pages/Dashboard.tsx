@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
-import { Dashboard as DashboardContent } from '@/components/dashboard/Dashboard';
+import DashboardContent from '@/components/dashboard/Dashboard';
 import { CLISection } from '@/components/dashboard/CLISection';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LayoutDashboard, Terminal, Users, Settings } from 'lucide-react';
