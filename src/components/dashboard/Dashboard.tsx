@@ -56,7 +56,7 @@ const Dashboard = () => {
       </div>
 
       <div className="relative z-10">
-        {/* Clean Header - No border */}
+        {/* Header - No border, no navigation tabs */}
         <header className="flex items-center justify-between p-6 bg-black/20 backdrop-blur-sm">
           <div>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
@@ -77,8 +77,8 @@ const Dashboard = () => {
               <Bell className="w-4 h-4" />
             </Button>
             
-            {/* Profile Dropdown - Fixed z-index to appear above everything */}
-            <div className="relative z-[10000]">
+            {/* Profile Dropdown - Highest z-index to appear above all cards */}
+            <div className="relative z-[99999]">
               <button
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                 className="flex items-center gap-2 p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
@@ -90,7 +90,7 @@ const Dashboard = () => {
               </button>
 
               {profileDropdownOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 bg-card border border-border rounded-lg shadow-lg z-[10001]">
+                <div className="absolute right-0 top-full mt-2 w-48 bg-card border border-border rounded-lg shadow-lg z-[99999]">
                   {menuItems.map((item, index) => (
                     <button
                       key={index}
