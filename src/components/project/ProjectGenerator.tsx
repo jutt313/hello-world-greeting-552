@@ -12,7 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 interface ProjectTemplate {
   id: string;
   name: string;
-  template_type: 'ios' | 'android' | 'web';
+  template_type: 'mobile' | 'web';
   description: string;
   programming_languages: string[];
   frameworks: string[];
@@ -54,38 +54,30 @@ export const ProjectGenerator: React.FC = () => {
     },
     {
       id: '4',
-      name: 'React Native iOS App',
-      template_type: 'ios',
-      description: 'Cross-platform iOS app using React Native',
+      name: 'React Native Mobile App',
+      template_type: 'mobile',
+      description: 'Cross-platform mobile app using React Native',
       programming_languages: ['TypeScript', 'JavaScript', 'Swift'],
       frameworks: ['React Native', 'Expo', 'Metro']
     },
     {
       id: '5',
       name: 'Native iOS Swift App',
-      template_type: 'ios',
+      template_type: 'mobile',
       description: 'Native iOS application using Swift',
       programming_languages: ['Swift', 'Objective-C'],
       frameworks: ['UIKit', 'SwiftUI', 'Core Data']
     },
     {
       id: '6',
-      name: 'React Native Android App',
-      template_type: 'android',
-      description: 'Cross-platform Android app using React Native',
-      programming_languages: ['TypeScript', 'JavaScript', 'Kotlin'],
-      frameworks: ['React Native', 'Expo', 'Metro']
-    },
-    {
-      id: '7',
       name: 'Native Android Kotlin App',
-      template_type: 'android',
+      template_type: 'mobile',
       description: 'Native Android application using Kotlin',
       programming_languages: ['Kotlin', 'Java'],
       frameworks: ['Android SDK', 'Jetpack Compose', 'Room']
     },
     {
-      id: '8',
+      id: '7',
       name: 'Python Flask API',
       template_type: 'web',
       description: 'Backend API using Python Flask',
@@ -98,8 +90,7 @@ export const ProjectGenerator: React.FC = () => {
 
   const getTemplateIcon = (type: string) => {
     switch (type) {
-      case 'ios': return <Smartphone className="w-4 h-4" />;
-      case 'android': return <Smartphone className="w-4 h-4" />;
+      case 'mobile': return <Smartphone className="w-4 h-4" />;
       case 'web': return <Globe className="w-4 h-4" />;
       default: return <Code className="w-4 h-4" />;
     }
@@ -132,7 +123,7 @@ export const ProjectGenerator: React.FC = () => {
       setGenerationStatus(prev => [...prev, `👑 Manager Agent (${managerAgent.name}) is coordinating the workflow...`]);
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Create project
+      // Create project with correct type mapping
       const { data: project } = await supabase
         .from('projects')
         .insert({

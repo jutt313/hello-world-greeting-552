@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Terminal as TerminalIcon, Play, Square, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -111,14 +110,22 @@ export const CLITerminal: React.FC = () => {
         'Delegating tasks to specialized agents...'
       ]);
 
-      // Create a project with correct status
+      // Map template type to valid project type
+      const getProjectType = (template: string) => {
+        if (template.includes('ios') || template.includes('android') || template.includes('react-native')) {
+          return 'mobile';
+        }
+        return 'web';
+      };
+
+      // Create a project with correct status and type
       const { data: project } = await supabase
         .from('projects')
         .insert({
           name: appName,
           description: `${templateType} application created via CLI`,
-          type: templateType.includes('ios') ? 'ios' : templateType.includes('android') ? 'android' : 'web',
-          status: 'active', // Use correct status value
+          type: getProjectType(templateType),
+          status: 'active',
           repository_url: `https://github.com/user/${appName}`,
           owner_id: (await supabase.auth.getUser()).data.user?.id || ''
         })
@@ -187,7 +194,7 @@ export const CLITerminal: React.FC = () => {
     try {
       updateCommand(commandId, ['Fetching available templates...']);
       
-      // Since project_templates table doesn't exist in types yet, use mock data
+      // Use mock templates since project_templates table doesn't exist in current types
       const mockTemplates: ProjectTemplate[] = [
         {
           id: '1',
@@ -200,7 +207,7 @@ export const CLITerminal: React.FC = () => {
         {
           id: '2',
           name: 'React Native iOS',
-          template_type: 'ios',
+          template_type: 'mobile',
           description: 'Cross-platform iOS app',
           programming_languages: ['TypeScript', 'Swift'],
           frameworks: ['React Native', 'Expo']
@@ -208,7 +215,7 @@ export const CLITerminal: React.FC = () => {
         {
           id: '3',
           name: 'React Native Android',
-          template_type: 'android',
+          template_type: 'mobile',
           description: 'Cross-platform Android app',
           programming_languages: ['TypeScript', 'Kotlin'],
           frameworks: ['React Native', 'Expo']
@@ -234,13 +241,8 @@ export const CLITerminal: React.FC = () => {
       const templateOutput = [
         'Available Project Templates:',
         '',
-        '📱 iOS Applications:',
-        ...mockTemplates.filter(t => t.template_type === 'ios').map(t => 
-          `  ${t.name} - ${t.description} (${t.programming_languages.join(', ')})`
-        ),
-        '',
-        '🤖 Android Applications:',
-        ...mockTemplates.filter(t => t.template_type === 'android').map(t => 
+        '📱 Mobile Applications:',
+        ...mockTemplates.filter(t => t.template_type === 'mobile').map(t => 
           `  ${t.name} - ${t.description} (${t.programming_languages.join(', ')})`
         ),
         '',
