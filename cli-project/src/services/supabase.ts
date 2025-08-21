@@ -12,13 +12,21 @@ export class SupabaseService {
 
   async authenticate(token: string) {
     try {
-      const { data, error } = await this.client.auth.setSession({
-        access_token: token,
-        refresh_token: '',
+      // Use the CLI token to get user information
+      const { data, error } = await this.client.functions.invoke('cli-auth-verify', {
+        body: { token: token.trim() }
       });
 
       if (error) throw error;
-      return data.user;
+      
+      // Set the session with the verified token data
+      if (data?.session) {
+        const { error: sessionError } = await this.client.auth.setSession(data.session);
+        if (sessionError) throw sessionError;
+        return data.user;
+      } else {
+        throw new Error('Invalid authentication token');
+      }
     } catch (error) {
       console.error(chalk.red('❌ Authentication failed:'), error);
       throw error;

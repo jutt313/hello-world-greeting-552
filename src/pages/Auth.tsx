@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { SignInForm } from '@/components/auth/SignInForm';
 import { SignUpForm } from '@/components/auth/SignUpForm';
@@ -15,18 +15,49 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Check if this is a CLI authentication request
+  const isCLIAuth = searchParams.get('cli') === 'true';
+  const cliRedirectUrl = searchParams.get('redirect');
 
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          navigate('/dashboard');
+          // Handle CLI authentication
+          if (isCLIAuth && cliRedirectUrl) {
+            try {
+              // Generate CLI token for authenticated user
+              const { data, error } = await supabase.functions.invoke('cli-auth-token', {
+                body: { 
+                  userId: session.user.id,
+                  session: session
+                }
+              });
+
+              if (error) throw error;
+
+              // Redirect to CLI with the token
+              const redirectUrl = `${cliRedirectUrl}?token=${encodeURIComponent(data.token)}`;
+              window.location.href = redirectUrl;
+              return;
+            } catch (error) {
+              console.error('CLI token generation failed:', error);
+              const redirectUrl = `${cliRedirectUrl}?error=${encodeURIComponent('Token generation failed')}`;
+              window.location.href = redirectUrl;
+              return;
+            }
+          } else {
+            // Normal web authentication - redirect to dashboard
+            navigate('/dashboard');
+          }
         }
       }
     );
@@ -37,12 +68,32 @@ const Auth = () => {
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        navigate('/dashboard');
+        // Handle CLI authentication for existing session
+        if (isCLIAuth && cliRedirectUrl) {
+          // Generate CLI token and redirect (same logic as above)
+          supabase.functions.invoke('cli-auth-token', {
+            body: { 
+              userId: session.user.id,
+              session: session
+            }
+          }).then(({ data, error }) => {
+            if (error) {
+              const redirectUrl = `${cliRedirectUrl}?error=${encodeURIComponent('Token generation failed')}`;
+              window.location.href = redirectUrl;
+            } else {
+              const redirectUrl = `${cliRedirectUrl}?token=${encodeURIComponent(data.token)}`;
+              window.location.href = redirectUrl;
+            }
+          });
+          return;
+        } else {
+          navigate('/dashboard');
+        }
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, isCLIAuth, cliRedirectUrl]);
 
   const handleSignIn = async (email: string, password: string) => {
     setLoading(true);
@@ -58,17 +109,21 @@ const Auth = () => {
         variant: "destructive",
       });
     } else {
-      toast({
-        title: "Welcome Back!",
-        description: "You have successfully signed in.",
-      });
+      if (!isCLIAuth) {
+        toast({
+          title: "Welcome Back!",
+          description: "You have successfully signed in.",
+        });
+      }
     }
     setLoading(false);
   };
 
   const handleSignUp = async (email: string, password: string, fullName: string) => {
     setLoading(true);
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = isCLIAuth && cliRedirectUrl 
+      ? `${window.location.origin}/auth?cli=true&redirect=${encodeURIComponent(cliRedirectUrl)}`
+      : `${window.location.origin}/`;
     
     const { error } = await supabase.auth.signUp({
       email,
@@ -99,7 +154,9 @@ const Auth = () => {
 
   const handleResetPassword = async (email: string) => {
     setLoading(true);
-    const redirectUrl = `${window.location.origin}/auth`;
+    const redirectUrl = isCLIAuth && cliRedirectUrl 
+      ? `${window.location.origin}/auth?cli=true&redirect=${encodeURIComponent(cliRedirectUrl)}`
+      : `${window.location.origin}/auth`;
     
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: redirectUrl,
@@ -135,7 +192,14 @@ const Auth = () => {
         {/* Logo and Title */}
         <div className="auth-header">
           <h1 className="auth-logo">Code-XI</h1>
-          <p className="auth-subtitle">AI-Powered Development Assistant</p>
+          <p className="auth-subtitle">
+            {isCLIAuth ? 'CLI Authentication' : 'AI-Powered Development Assistant'}
+          </p>
+          {isCLIAuth && (
+            <p className="text-sm text-muted-foreground mt-2">
+              Please sign in to authenticate your CLI tool
+            </p>
+          )}
         </div>
 
         {/* Auth Card */}
