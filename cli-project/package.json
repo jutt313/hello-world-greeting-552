@@ -1,0 +1,49 @@
+
+{
+  "name": "@codexi/cli",
+  "version": "1.0.0",
+  "description": "Code-XI AI Development CLI Tool - Professional 8-agent development team",
+  "main": "dist/index.js",
+  "bin": {
+    "codexi": "dist/index.js",
+    "code-xi": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "prepublishOnly": "npm run build",
+    "test": "echo \"CLI tests\" && exit 0"
+  },
+  "keywords": ["cli", "ai", "development", "code-xi", "agents", "automation"],
+  "author": "Code-XI Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codexi/cli.git"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "chalk": "^4.1.2",
+    "inquirer": "^8.2.4",
+    "axios": "^1.7.7",
+    "@supabase/supabase-js": "^2.55.0",
+    "ora": "^5.4.1",
+    "figlet": "^1.7.0",
+    "boxen": "^5.1.2",
+    "node-fetch": "^3.3.2",
+    "fs-extra": "^11.2.0",
+    "glob": "^10.3.10"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "@types/inquirer": "^8.2.10",
+    "@types/figlet": "^1.5.8",
+    "@types/fs-extra": "^11.0.4",
+    "typescript": "^5.5.3",
+    "ts-node": "^10.9.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
