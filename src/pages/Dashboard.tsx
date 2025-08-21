@@ -1,167 +1,67 @@
 
-import React, { useState } from "react";
-import { Bell, User, ChevronDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { MetricCards } from "@/components/dashboard/MetricCards";
-import { ChartsSection } from "@/components/dashboard/ChartsSection";
-import { ProjectsTable } from "@/components/dashboard/ProjectsTable";
-import { AgentsOverview } from "@/components/dashboard/AgentsOverview";
-import LLMProvidersPopup from "@/components/llm/LLMProvidersPopup";
-import DocumentationPopup from "@/components/popups/DocumentationPopup";
-import CLISetupPopup from "@/components/popups/CLISetupPopup";
-import SettingsPopup from "@/components/popups/SettingsPopup";
-import TeamPopup from "@/components/popups/TeamPopup";
-import NotificationsPopup from "@/components/popups/NotificationsPopup";
-import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { AppSidebar } from '@/components/AppSidebar';
+import { Dashboard as DashboardContent } from '@/components/dashboard/Dashboard';
+import { CLISection } from '@/components/dashboard/CLISection';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { LayoutDashboard, Terminal, Users, Settings } from 'lucide-react';
 
 const Dashboard = () => {
-  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-  const [llmProvidersOpen, setLlmProvidersOpen] = useState(false);
-  const [documentationOpen, setDocumentationOpen] = useState(false);
-  const [cliSetupOpen, setCLISetupOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [teamOpen, setTeamOpen] = useState(false);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [agentOverviewOpen, setAgentOverviewOpen] = useState(false);
-  const navigate = useNavigate();
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate('/auth');
-  };
-
-  const menuItems = [
-    { label: 'Agent Overview', action: () => setAgentOverviewOpen(true) },
-    { label: 'LLM Providers', action: () => setLlmProvidersOpen(true) },
-    { label: 'Documentation', action: () => setDocumentationOpen(true) },
-    { label: 'CLI Setup', action: () => setCLISetupOpen(true) },
-    { label: 'Settings', action: () => setSettingsOpen(true) },
-    { label: 'Team', action: () => setTeamOpen(true) },
-    { label: 'Sign Out', action: handleSignOut },
-  ];
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
-      <div className="absolute inset-0 bg-black/20" />
-      
-      {/* Animated background orbs */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-pulse delay-2000" />
-      </div>
+    <SidebarProvider>
+      <div className="min-h-screen flex">
+        <AppSidebar />
+        <main className="flex-1 overflow-auto">
+          <div className="container mx-auto p-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-4 mb-6">
+                <TabsTrigger value="dashboard" className="flex items-center gap-2">
+                  <LayoutDashboard className="w-4 h-4" />
+                  Dashboard
+                </TabsTrigger>
+                <TabsTrigger value="cli" className="flex items-center gap-2">
+                  <Terminal className="w-4 h-4" />
+                  CLI Terminal
+                </TabsTrigger>
+                <TabsTrigger value="agents" className="flex items-center gap-2">
+                  <Users className="w-4 h-4" />
+                  Agents
+                </TabsTrigger>
+                <TabsTrigger value="settings" className="flex items-center gap-2">
+                  <Settings className="w-4 h-4" />
+                  Settings
+                </TabsTrigger>
+              </TabsList>
 
-      <div className="relative z-10">
-        {/* Standalone Platform Title and Navigation */}
-        <div className="flex items-center justify-between p-8">
-          <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent mb-2">
-              Code-XI
-            </h1>
-            <p className="text-slate-300 text-lg">
-              Build, deploy, and scale AI-powered applications effortlessly
-            </p>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="text-white hover:bg-white/10"
-              onClick={() => setNotificationsOpen(true)}
-            >
-              <Bell className="w-5 h-5" />
-            </Button>
-            
-            {/* Profile Dropdown - Fixed z-index to be higher than mini cards */}
-            <div className="relative">
-              <button
-                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                className="flex items-center gap-2 p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
-              >
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-400 flex items-center justify-center">
-                  <User className="w-4 h-4 text-white" />
-                </div>
-                <ChevronDown className="w-4 h-4 text-white" />
-              </button>
+              <TabsContent value="dashboard" className="space-y-6">
+                <DashboardContent />
+              </TabsContent>
 
-              {profileDropdownOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 bg-card border border-border rounded-lg shadow-lg z-[99999]">
-                  {menuItems.map((item, index) => (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        item.action();
-                        setProfileDropdownOpen(false);
-                      }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-accent hover:text-accent-foreground transition-colors first:rounded-t-lg last:rounded-b-lg"
-                    >
-                      <span className="text-sm">{item.label}</span>
-                    </button>
-                  ))}
+              <TabsContent value="cli" className="space-y-6">
+                <CLISection />
+              </TabsContent>
+
+              <TabsContent value="agents" className="space-y-6">
+                <div className="text-center py-12">
+                  <h3 className="text-lg font-semibold mb-2">Agents Management</h3>
+                  <p className="text-muted-foreground">Agent management interface coming soon</p>
                 </div>
-              )}
-            </div>
+              </TabsContent>
+
+              <TabsContent value="settings" className="space-y-6">
+                <div className="text-center py-12">
+                  <h3 className="text-lg font-semibold mb-2">Settings</h3>
+                  <p className="text-muted-foreground">Settings interface coming soon</p>
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
-        </div>
-        
-        {/* Main Content */}
-        <main className="px-8 pb-8 space-y-8">
-          <MetricCards />
-          <ChartsSection />
-          <ProjectsTable />
         </main>
       </div>
-
-      {/* Popups */}
-      <LLMProvidersPopup 
-        isOpen={llmProvidersOpen} 
-        onClose={() => setLlmProvidersOpen(false)} 
-      />
-      <DocumentationPopup 
-        isOpen={documentationOpen} 
-        onClose={() => setDocumentationOpen(false)} 
-      />
-      <CLISetupPopup 
-        isOpen={cliSetupOpen} 
-        onClose={() => setCLISetupOpen(false)} 
-      />
-      <SettingsPopup 
-        isOpen={settingsOpen} 
-        onClose={() => setSettingsOpen(false)} 
-      />
-      <TeamPopup 
-        isOpen={teamOpen} 
-        onClose={() => setTeamOpen(false)} 
-      />
-      <NotificationsPopup 
-        isOpen={notificationsOpen} 
-        onClose={() => setNotificationsOpen(false)} 
-      />
-
-      {/* Agent Overview Popup */}
-      {agentOverviewOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-card border border-border rounded-lg shadow-lg max-w-6xl w-full max-h-[80vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b">
-              <h2 className="text-xl font-semibold">Agent Overview</h2>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => setAgentOverviewOpen(false)}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                ✕
-              </Button>
-            </div>
-            <div className="p-6">
-              <AgentsOverview />
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    </SidebarProvider>
   );
 };
 

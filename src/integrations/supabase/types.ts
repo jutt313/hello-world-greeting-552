@@ -56,6 +56,84 @@ export type Database = {
           },
         ]
       }
+      agent_capabilities: {
+        Row: {
+          agent_id: string
+          capability_config: Json
+          capability_name: string
+          capability_type: string
+          created_at: string
+          id: string
+          is_active: boolean
+          supported_frameworks: Json
+          supported_languages: Json
+        }
+        Insert: {
+          agent_id: string
+          capability_config?: Json
+          capability_name: string
+          capability_type: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          supported_frameworks?: Json
+          supported_languages?: Json
+        }
+        Update: {
+          agent_id?: string
+          capability_config?: Json
+          capability_name?: string
+          capability_type?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          supported_frameworks?: Json
+          supported_languages?: Json
+        }
+        Relationships: []
+      }
+      agent_coordination: {
+        Row: {
+          coordination_type: string
+          created_at: string
+          id: string
+          initiator_agent_id: string
+          message: string
+          project_id: string
+          response: string | null
+          status: string
+          target_agent_id: string
+          task_data: Json | null
+          updated_at: string
+        }
+        Insert: {
+          coordination_type: string
+          created_at?: string
+          id?: string
+          initiator_agent_id: string
+          message: string
+          project_id: string
+          response?: string | null
+          status?: string
+          target_agent_id: string
+          task_data?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          coordination_type?: string
+          created_at?: string
+          id?: string
+          initiator_agent_id?: string
+          message?: string
+          project_id?: string
+          response?: string | null
+          status?: string
+          target_agent_id?: string
+          task_data?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       agent_expertise_patterns: {
         Row: {
           agent_id: string
@@ -114,6 +192,60 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      agent_file_operations: {
+        Row: {
+          agent_id: string
+          completed_at: string | null
+          cost: number | null
+          created_at: string
+          error_message: string | null
+          file_content_after: string | null
+          file_content_before: string | null
+          file_path: string
+          framework: string | null
+          id: string
+          operation_status: string
+          operation_type: string
+          programming_language: string | null
+          project_id: string
+          tokens_used: number | null
+        }
+        Insert: {
+          agent_id: string
+          completed_at?: string | null
+          cost?: number | null
+          created_at?: string
+          error_message?: string | null
+          file_content_after?: string | null
+          file_content_before?: string | null
+          file_path: string
+          framework?: string | null
+          id?: string
+          operation_status?: string
+          operation_type: string
+          programming_language?: string | null
+          project_id: string
+          tokens_used?: number | null
+        }
+        Update: {
+          agent_id?: string
+          completed_at?: string | null
+          cost?: number | null
+          created_at?: string
+          error_message?: string | null
+          file_content_after?: string | null
+          file_content_before?: string | null
+          file_path?: string
+          framework?: string | null
+          id?: string
+          operation_status?: string
+          operation_type?: string
+          programming_language?: string | null
+          project_id?: string
+          tokens_used?: number | null
+        }
+        Relationships: []
       }
       agent_knowledge_sharing: {
         Row: {
@@ -834,6 +966,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      project_templates: {
+        Row: {
+          build_commands: Json
+          created_at: string
+          default_files: Json
+          dependencies: Json
+          deployment_config: Json
+          description: string | null
+          framework: string | null
+          id: string
+          is_active: boolean
+          name: string
+          programming_language: string
+          template_structure: Json
+          template_type: string
+          updated_at: string
+        }
+        Insert: {
+          build_commands?: Json
+          created_at?: string
+          default_files?: Json
+          dependencies?: Json
+          deployment_config?: Json
+          description?: string | null
+          framework?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          programming_language: string
+          template_structure?: Json
+          template_type: string
+          updated_at?: string
+        }
+        Update: {
+          build_commands?: Json
+          created_at?: string
+          default_files?: Json
+          dependencies?: Json
+          deployment_config?: Json
+          description?: string | null
+          framework?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          programming_language?: string
+          template_structure?: Json
+          template_type?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       project_users: {
         Row: {
