@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { MetricCards } from "@/components/dashboard/MetricCards";
 import { ChartsSection } from "@/components/dashboard/ChartsSection";
 import { ProjectsTable } from "@/components/dashboard/ProjectsTable";
+import { AgentsOverview } from "@/components/dashboard/AgentsOverview";
 import LLMProvidersPopup from "@/components/llm/LLMProvidersPopup";
 import DocumentationPopup from "@/components/popups/DocumentationPopup";
 import CLISetupPopup from "@/components/popups/CLISetupPopup";
@@ -22,6 +23,7 @@ const Dashboard = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [teamOpen, setTeamOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [agentOverviewOpen, setAgentOverviewOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -30,6 +32,7 @@ const Dashboard = () => {
   };
 
   const menuItems = [
+    { label: 'Agent Overview', action: () => setAgentOverviewOpen(true) },
     { label: 'LLM Providers', action: () => setLlmProvidersOpen(true) },
     { label: 'Documentation', action: () => setDocumentationOpen(true) },
     { label: 'CLI Setup', action: () => setCLISetupOpen(true) },
@@ -136,6 +139,28 @@ const Dashboard = () => {
         isOpen={notificationsOpen} 
         onClose={() => setNotificationsOpen(false)} 
       />
+
+      {/* Agent Overview Popup */}
+      {agentOverviewOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-card border border-border rounded-lg shadow-lg max-w-6xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b">
+              <h2 className="text-xl font-semibold">Agent Overview</h2>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setAgentOverviewOpen(false)}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                ✕
+              </Button>
+            </div>
+            <div className="p-6">
+              <AgentsOverview />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
