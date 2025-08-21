@@ -21,8 +21,8 @@ interface DatabaseInfo {
 export const DatabaseAnalysisPanel: React.FC = () => {
   const [supabaseStatus, setSupabaseStatus] = useState<'checking' | 'connected' | 'error'>('checking');
   const [agentCount, setAgentCount] = useState(0);
-  const [templateCount, setTemplateCount] = useState(0);
-  const [capabilityCount, setCapabilityCount] = useState(0);
+  const [projectCount, setProjectCount] = useState(0);
+  const [userCount, setUserCount] = useState(0);
   const { toast } = useToast();
 
   const databases: DatabaseInfo[] = [
@@ -102,6 +102,7 @@ export const DatabaseAnalysisPanel: React.FC = () => {
 
   const checkSupabaseConnection = async () => {
     try {
+      // Test connection with existing agents table that we know exists
       const { data: agents, error: agentsError } = await supabase
         .from('agents')
         .select('id')
@@ -109,36 +110,36 @@ export const DatabaseAnalysisPanel: React.FC = () => {
 
       if (agentsError) throw agentsError;
 
-      const { data: templates, error: templatesError } = await supabase
-        .from('project_templates')
+      const { data: projects, error: projectsError } = await supabase
+        .from('projects')
         .select('id')
         .limit(1);
 
-      if (templatesError) throw templatesError;
+      if (projectsError) throw projectsError;
 
-      const { data: capabilities, error: capabilitiesError } = await supabase
-        .from('agent_capabilities')
+      const { data: profiles, error: profilesError } = await supabase
+        .from('users_profiles')
         .select('id')
         .limit(1);
 
-      if (capabilitiesError) throw capabilitiesError;
+      if (profilesError) throw profilesError;
 
-      // Count records
+      // Count records from existing tables
       const { count: agentTotal } = await supabase
         .from('agents')
         .select('*', { count: 'exact', head: true });
 
-      const { count: templateTotal } = await supabase
-        .from('project_templates')
+      const { count: projectTotal } = await supabase
+        .from('projects')
         .select('*', { count: 'exact', head: true });
 
-      const { count: capabilityTotal } = await supabase
-        .from('agent_capabilities')
+      const { count: userTotal } = await supabase
+        .from('users_profiles')
         .select('*', { count: 'exact', head: true });
 
       setAgentCount(agentTotal || 0);
-      setTemplateCount(templateTotal || 0);
-      setCapabilityCount(capabilityTotal || 0);
+      setProjectCount(projectTotal || 0);
+      setUserCount(userTotal || 0);
       setSupabaseStatus('connected');
 
       toast({
@@ -220,12 +221,12 @@ export const DatabaseAnalysisPanel: React.FC = () => {
                   <div className="text-sm text-muted-foreground">Active Agents</div>
                 </div>
                 <div>
-                  <div className="font-medium">{templateCount}</div>
-                  <div className="text-sm text-muted-foreground">Project Templates</div>
+                  <div className="font-medium">{projectCount}</div>
+                  <div className="text-sm text-muted-foreground">Projects</div>
                 </div>
                 <div>
-                  <div className="font-medium">{capabilityCount}</div>
-                  <div className="text-sm text-muted-foreground">Agent Capabilities</div>
+                  <div className="font-medium">{userCount}</div>
+                  <div className="text-sm text-muted-foreground">Users</div>
                 </div>
               </div>
               
