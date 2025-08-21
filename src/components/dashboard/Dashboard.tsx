@@ -12,6 +12,7 @@ import CLISetupPopup from "@/components/popups/CLISetupPopup";
 import SettingsPopup from "@/components/popups/SettingsPopup";
 import TeamPopup from "@/components/popups/TeamPopup";
 import NotificationsPopup from "@/components/popups/NotificationsPopup";
+import { CLISection } from "@/components/dashboard/CLISection";
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 
@@ -24,6 +25,7 @@ const Dashboard = () => {
   const [teamOpen, setTeamOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [agentOverviewOpen, setAgentOverviewOpen] = useState(false);
+  const [cliTerminalOpen, setCLITerminalOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -33,6 +35,7 @@ const Dashboard = () => {
 
   const menuItems = [
     { label: 'Agent Overview', action: () => setAgentOverviewOpen(true) },
+    { label: 'CLI Terminal', action: () => setCLITerminalOpen(true) },
     { label: 'LLM Providers', action: () => setLlmProvidersOpen(true) },
     { label: 'Documentation', action: () => setDocumentationOpen(true) },
     { label: 'CLI Setup', action: () => setCLISetupOpen(true) },
@@ -53,7 +56,7 @@ const Dashboard = () => {
       </div>
 
       <div className="relative z-10">
-        {/* Fixed Header - Removed border */}
+        {/* Clean Header - No border */}
         <header className="flex items-center justify-between p-6 bg-black/20 backdrop-blur-sm">
           <div>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
@@ -74,8 +77,8 @@ const Dashboard = () => {
               <Bell className="w-4 h-4" />
             </Button>
             
-            {/* Profile Dropdown - Fixed z-index */}
-            <div className="relative">
+            {/* Profile Dropdown - Fixed z-index to appear above everything */}
+            <div className="relative z-[10000]">
               <button
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                 className="flex items-center gap-2 p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
@@ -87,7 +90,7 @@ const Dashboard = () => {
               </button>
 
               {profileDropdownOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 bg-card border border-border rounded-lg shadow-lg z-[9999]">
+                <div className="absolute right-0 top-full mt-2 w-48 bg-card border border-border rounded-lg shadow-lg z-[10001]">
                   {menuItems.map((item, index) => (
                     <button
                       key={index}
@@ -114,7 +117,7 @@ const Dashboard = () => {
         </main>
       </div>
 
-      {/* All Popups with larger sizes */}
+      {/* All Popups */}
       <LLMProvidersPopup 
         isOpen={llmProvidersOpen} 
         onClose={() => setLlmProvidersOpen(false)} 
@@ -157,6 +160,28 @@ const Dashboard = () => {
             </div>
             <div className="p-6">
               <AgentsOverview />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CLI Terminal Popup */}
+      {cliTerminalOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-card border border-border rounded-lg shadow-lg max-w-6xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b">
+              <h2 className="text-xl font-semibold">CLI Terminal</h2>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setCLITerminalOpen(false)}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                ✕
+              </Button>
+            </div>
+            <div className="p-6">
+              <CLISection />
             </div>
           </div>
         </div>
