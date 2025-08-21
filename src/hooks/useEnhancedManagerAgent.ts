@@ -31,10 +31,22 @@ interface ProjectAnalysis {
   recommendedApproach: string;
 }
 
-export const useEnhancedManagerAgent = () => {
+interface WorkflowState {
+  id: string;
+  project_type: string;
+  programming_language: string;
+  framework: string;
+  status: string;
+  progress_percentage: number;
+  tasks: WorkflowTask[];
+}
+
+export const useEnhancedManagerAgent = (projectId: string) => {
   const [tasks, setTasks] = useState<WorkflowTask[]>([]);
   const [activeWorkflow, setActiveWorkflow] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [workflow, setWorkflow] = useState<WorkflowState | null>(null);
+  const [isOrchestrating, setIsOrchestrating] = useState(false);
   const { toast } = useToast();
 
   const analyzeProject = async (projectDescription: string, projectType: string): Promise<ProjectAnalysis> => {
@@ -103,46 +115,99 @@ export const useEnhancedManagerAgent = () => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       },
-      {
-        id: `task-4-${Date.now()}`,
-        title: 'Security Review & Implementation',
-        description: 'Perform security audit and implement security measures',
-        assignedAgent: 'security_engineer',
-        status: 'pending',
-        priority: 'high',
-        estimatedTime: 6,
-        dependencies: [`task-2-${Date.now()}`],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-      {
-        id: `task-5-${Date.now()}`,
-        title: 'Deployment & DevOps Setup',
-        description: 'Set up CI/CD pipeline and deploy application',
-        assignedAgent: 'devops_engineer',
-        status: 'pending',
-        priority: 'medium',
-        estimatedTime: 4,
-        dependencies: [`task-3-${Date.now()}`, `task-4-${Date.now()}`],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-      {
-        id: `task-6-${Date.now()}`,
-        title: 'Documentation & Performance Optimization',
-        description: 'Create comprehensive documentation and optimize performance',
-        assignedAgent: 'documentation_specialist',
-        status: 'pending',
-        priority: 'low',
-        estimatedTime: 4,
-        dependencies: [`task-5-${Date.now()}`],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
     ];
 
     setTasks(workflowTasks);
     return workflowTasks;
+  };
+
+  const orchestrateProject = async (
+    projectType: string,
+    programmingLanguage: string,
+    framework: string,
+    requirements: string
+  ) => {
+    setIsOrchestrating(true);
+    setIsProcessing(true);
+    
+    try {
+      console.log('Manager Agent orchestrating project:', {
+        projectType,
+        programmingLanguage,
+        framework,
+        requirements
+      });
+
+      // Create workflow state
+      const newWorkflow: WorkflowState = {
+        id: `workflow-${Date.now()}`,
+        project_type: projectType,
+        programming_language: programmingLanguage,
+        framework: framework,
+        status: 'in_progress',
+        progress_percentage: 10,
+        tasks: [
+          {
+            id: 'task-1',
+            title: 'Project Analysis',
+            description: 'Analyzing project requirements and creating plan',
+            assignedAgent: 'manager',
+            status: 'in_progress',
+            priority: 'high',
+            estimatedTime: 2,
+            dependencies: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: 'task-2',
+            title: 'Code Generation',
+            description: `Generating ${projectType} application with ${programmingLanguage}/${framework}`,
+            assignedAgent: 'fullstack_engineer',
+            status: 'pending',
+            priority: 'high',
+            estimatedTime: 8,
+            dependencies: ['task-1'],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+        ]
+      };
+
+      setWorkflow(newWorkflow);
+      setActiveWorkflow(newWorkflow.id);
+
+      // Simulate workflow progress
+      setTimeout(() => {
+        setWorkflow(prev => prev ? {
+          ...prev,
+          progress_percentage: 50,
+          tasks: prev.tasks.map(task => 
+            task.id === 'task-1' 
+              ? { ...task, status: 'completed' as const }
+              : task.id === 'task-2'
+              ? { ...task, status: 'in_progress' as const }
+              : task
+          )
+        } : null);
+      }, 2000);
+
+      toast({
+        title: 'Project Orchestration Started',
+        description: `Manager Agent is coordinating the development of your ${projectType} application`,
+      });
+
+    } catch (error) {
+      console.error('Error orchestrating project:', error);
+      toast({
+        title: 'Orchestration Failed',
+        description: error instanceof Error ? error.message : 'Failed to orchestrate project',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsOrchestrating(false);
+      setIsProcessing(false);
+    }
   };
 
   const delegateTask = async (taskId: string, agentId: string, taskData: Record<string, any>) => {
@@ -160,7 +225,6 @@ export const useEnhancedManagerAgent = () => {
         )
       );
 
-      // Here we would normally save to agent_coordination table, but for now we'll log
       console.log('Task delegated successfully:', {
         taskId,
         targetAgent: agentId,
@@ -229,6 +293,9 @@ export const useEnhancedManagerAgent = () => {
     tasks,
     activeWorkflow,
     isProcessing,
+    workflow,
+    isOrchestrating,
+    orchestrateProject,
     analyzeProject,
     createWorkflowPlan,
     delegateTask,
