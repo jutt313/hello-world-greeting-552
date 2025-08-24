@@ -8,7 +8,7 @@ import { StatCards } from '@/components/dashboard/StatCards';
 import { AnalyticsCharts } from '@/components/dashboard/AnalyticsCharts';
 import LLMProvidersPopup from '@/components/popups/LLMProvidersPopup';
 
-export default function Dashboard() {
+const Dashboard = () => {
   const [llmProvidersOpen, setLlmProvidersOpen] = useState(false);
 
   return (
@@ -138,4 +138,8 @@ export default function Dashboard() {
       />
     </div>
   );
-}
+};
+
+// Export as both named and default export
+export { Dashboard };
+export default Dashboard;
