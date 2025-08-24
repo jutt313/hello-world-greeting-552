@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ManagerAgentChat } from '@/components/agents/ManagerAgentChat';
+import ManagerAgentChat from '@/components/agents/ManagerAgentChat';
 import { Bot } from 'lucide-react';
 
 interface ManagerAgentPopupProps {
@@ -26,7 +26,10 @@ export const ManagerAgentPopup: React.FC<ManagerAgentPopupProps> = ({
         </DialogHeader>
         
         <div className="h-[70vh]">
-          <ManagerAgentChat projectId={projectId} />
+          <ManagerAgentChat 
+            projectId={projectId} 
+            projectName="Platform Communication"
+          />
         </div>
       </DialogContent>
     </Dialog>
