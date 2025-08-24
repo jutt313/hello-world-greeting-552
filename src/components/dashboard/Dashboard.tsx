@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { AppSidebar } from '@/components/AppSidebar';
 import { SidebarProvider } from '@/components/ui/sidebar';
-import { ProfileDropdown } from '@/components/dashboard/ProfileDropdown';
+import ProfileDropdown from '@/components/dashboard/ProfileDropdown';
 import { StatCards } from '@/components/dashboard/StatCards';
 import { AnalyticsCharts } from '@/components/dashboard/AnalyticsCharts';
 import { LLMProvidersPopup } from '@/components/popups/LLMProvidersPopup';
