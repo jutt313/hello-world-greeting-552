@@ -29,6 +29,13 @@ interface LLMProvider {
   };
 }
 
+interface DatabaseProvider {
+  id: string;
+  provider_name: string;
+  selected_models: any;
+  provider_config: any;
+}
+
 interface ManagerAgentChatPopupProps {
   isOpen: boolean;
   onClose: () => void;
@@ -74,14 +81,16 @@ const ManagerAgentChatPopup: React.FC<ManagerAgentChatPopupProps> = ({ isOpen, o
 
       if (error) throw error;
 
-      const transformedProviders: LLMProvider[] = (data || []).map(provider => ({
+      const transformedProviders: LLMProvider[] = (data as DatabaseProvider[])?.map(provider => ({
         id: provider.id,
         provider_name: provider.provider_name,
-        selected_models: Array.isArray(provider.selected_models) ? provider.selected_models : [],
+        selected_models: Array.isArray(provider.selected_models) 
+          ? provider.selected_models.filter((model): model is string => typeof model === 'string')
+          : [],
         provider_config: typeof provider.provider_config === 'object' && provider.provider_config !== null 
           ? provider.provider_config as { credential_name: string }
           : { credential_name: 'Unknown' }
-      }));
+      })) || [];
 
       setProviders(transformedProviders);
     } catch (error) {
