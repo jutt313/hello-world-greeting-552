@@ -1,56 +1,73 @@
 
-import React, { useState } from 'react';
-import { User, Settings, FileText, Terminal, LogOut, ChevronDown } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { User, Settings, BookOpen, Users, LogOut } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
-const ProfileDropdown = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const navigate = useNavigate();
+interface ProfileDropdownProps {
+  onLlmProvidersClick: () => void;
+}
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate('/auth');
-  };
-
-  const menuItems = [
-    { icon: Settings, label: 'LLM Providers', action: () => console.log('LLM Providers') },
-    { icon: FileText, label: 'Documentation', action: () => console.log('Documentation') },
-    { icon: Terminal, label: 'CLI Setup', action: () => console.log('CLI Setup') },
-    { icon: Settings, label: 'Settings', action: () => console.log('Settings') },
-    { icon: LogOut, label: 'Sign Out', action: handleSignOut },
-  ];
-
+export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
+  onLlmProvidersClick,
+}) => {
   return (
-    <div className="relative">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 p-2 rounded-lg bg-sidebar hover:bg-sidebar-accent transition-colors"
-      >
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-blue-400 flex items-center justify-center">
-          <User className="w-4 h-4 text-white" />
-        </div>
-        <ChevronDown className="w-4 h-4 text-sidebar-foreground" />
-      </button>
-
-      {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-48 bg-card border border-border rounded-lg shadow-lg z-[9999]">
-          {menuItems.map((item, index) => (
-            <button
-              key={index}
-              onClick={() => {
-                item.action();
-                setIsOpen(false);
-              }}
-              className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-accent hover:text-accent-foreground transition-colors first:rounded-t-lg last:rounded-b-lg"
-            >
-              <item.icon className="w-4 h-4" />
-              <span className="text-sm">{item.label}</span>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+          <Avatar className="h-8 w-8">
+            <AvatarFallback className="bg-gradient-to-r from-cyan-400 to-blue-500 text-white">
+              U
+            </AvatarFallback>
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56 bg-slate-800 border-slate-700" align="end" forceMount>
+        <DropdownMenuItem className="text-slate-200 hover:bg-slate-700">
+          <User className="mr-2 h-4 w-4" />
+          <span>Profile</span>
+        </DropdownMenuItem>
+        
+        <DropdownMenuItem 
+          className="text-slate-200 hover:bg-slate-700"
+          onClick={onLlmProvidersClick}
+        >
+          <Settings className="mr-2 h-4 w-4" />
+          <span>LLM Providers</span>
+        </DropdownMenuItem>
+        
+        <DropdownMenuSeparator className="bg-slate-700" />
+        
+        <DropdownMenuItem className="text-slate-200 hover:bg-slate-700">
+          <BookOpen className="mr-2 h-4 w-4" />
+          <span>Documentation</span>
+        </DropdownMenuItem>
+        
+        <DropdownMenuItem className="text-slate-200 hover:bg-slate-700">
+          <Users className="mr-2 h-4 w-4" />
+          <span>Team</span>
+        </DropdownMenuItem>
+        
+        <DropdownMenuItem className="text-slate-200 hover:bg-slate-700">
+          <Settings className="mr-2 h-4 w-4" />
+          <span>Settings</span>
+        </DropdownMenuItem>
+        
+        <DropdownMenuSeparator className="bg-slate-700" />
+        
+        <DropdownMenuItem className="text-slate-200 hover:bg-slate-700">
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>Log out</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 
