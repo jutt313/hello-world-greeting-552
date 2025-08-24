@@ -21,10 +21,38 @@ interface FileOperation {
   completed_at?: string;
 }
 
+// Database response type to match actual Supabase schema
+interface DatabaseFileOperation {
+  id: string;
+  agent_id: string;
+  project_id: string;
+  operation_type: string; // Database returns string, not union type
+  file_path: string;
+  file_content_before?: string;
+  file_content_after?: string;
+  operation_status: string;
+  error_message?: string;
+  programming_language?: string;
+  framework?: string;
+  tokens_used: number;
+  cost: number;
+  created_at: string;
+  completed_at?: string;
+}
+
 export const useRealFileOperations = () => {
   const [operations, setOperations] = useState<FileOperation[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+
+  // Helper function to convert database response to typed interface
+  const convertDatabaseOperation = (dbOp: DatabaseFileOperation): FileOperation => {
+    return {
+      ...dbOp,
+      operation_type: dbOp.operation_type as 'create' | 'update' | 'delete' | 'read',
+      operation_status: dbOp.operation_status as 'pending' | 'completed' | 'failed'
+    };
+  };
 
   const fetchOperations = async (projectId?: string) => {
     setIsLoading(true);
@@ -48,7 +76,9 @@ export const useRealFileOperations = () => {
       }
 
       console.log(`Loaded ${data?.length || 0} REAL file operations`);
-      setOperations(data || []);
+      // Convert database response to typed operations
+      const typedOperations = (data || []).map(convertDatabaseOperation);
+      setOperations(typedOperations);
       
     } catch (error) {
       console.error('Error fetching file operations:', error);
@@ -77,14 +107,15 @@ export const useRealFileOperations = () => {
 
       if (error) throw error;
 
-      setOperations(prev => [data, ...prev]);
+      const typedOperation = convertDatabaseOperation(data);
+      setOperations(prev => [typedOperation, ...prev]);
       
       toast({
         title: 'REAL File Operation Created',
         description: `${operation.operation_type} operation for ${operation.file_path}`,
       });
 
-      return data;
+      return typedOperation;
     } catch (error) {
       console.error('Error creating REAL file operation:', error);
       toast({

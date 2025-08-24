@@ -31,8 +31,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ onUpload }) => {
         ref={fileInputRef}
         type="file"
         multiple
-        webkitdirectory=""
-        directory=""
+        {...({ webkitdirectory: "", directory: "" } as any)}
         className="hidden"
         onChange={handleFileChange}
       />
@@ -137,7 +136,7 @@ export const RealTerminal = () => {
           .insert({
             name: `Terminal Session ${sessionId}`,
             description: 'Real terminal session project',
-            type: 'web_application',
+            type: 'web',
             owner_id: user.user.id,
           })
           .select()
