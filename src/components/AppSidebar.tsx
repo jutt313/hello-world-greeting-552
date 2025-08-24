@@ -1,5 +1,6 @@
 
-import React from "react";
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import {
   Sidebar,
   SidebarContent,
@@ -11,114 +12,71 @@ import {
   SidebarMenuItem,
   SidebarHeader,
   SidebarFooter,
-} from "@/components/ui/sidebar";
-import {
-  Home,
-  FolderOpen,
-  MessageSquare,
+} from '@/components/ui/sidebar';
+import { 
+  Home, 
+  FolderOpen, 
+  Users, 
+  BarChart3, 
   Settings,
-  Bot,
-  BarChart3,
-  Users,
-  FileText,
-  Terminal,
-} from "lucide-react";
+  Bot
+} from 'lucide-react';
 
-const menuItems = [
+const navigation = [
   {
-    title: "Dashboard",
+    name: 'Dashboard',
+    href: '/dashboard',
     icon: Home,
-    url: "/dashboard",
   },
   {
-    title: "Projects",
+    name: 'Projects',
+    href: '/projects',
     icon: FolderOpen,
-    url: "/projects",
   },
   {
-    title: "Chat Sessions",
-    icon: MessageSquare,
-    url: "/chat",
-  },
-  {
-    title: "LLM Providers",
+    name: 'AI Agents',
+    href: '/agents',
     icon: Bot,
-    url: "/llm-providers",
   },
   {
-    title: "Analytics",
+    name: 'Analytics',
+    href: '/analytics',
     icon: BarChart3,
-    url: "/analytics",
-  },
-  {
-    title: "Team",
-    icon: Users,
-    url: "/team",
   },
 ];
 
-const toolsItems = [
-  {
-    title: "CLI Setup",
-    icon: Terminal,
-    url: "/cli-setup",
-  },
-  {
-    title: "Documentation",
-    icon: FileText,
-    url: "/docs",
-  },
-  {
-    title: "Settings",
-    icon: Settings,
-    url: "/settings",
-  },
-];
+export const AppSidebar = () => {
+  const location = useLocation();
 
-export function AppSidebar() {
   return (
-    <Sidebar className="border-r border-white/10">
-      <SidebarHeader className="p-4">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-blue-400 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">CX</span>
+    <Sidebar variant="inset">
+      <SidebarHeader>
+        <div className="flex items-center gap-2 px-4 py-2">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-cyan-400 to-blue-400 flex items-center justify-center">
+            <span className="text-white font-bold text-sm">XI</span>
           </div>
-          <span className="font-bold text-lg bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-            CodeXI
-          </span>
+          <div>
+            <h2 className="font-semibold text-lg">Code-XI</h2>
+            <p className="text-xs text-muted-foreground">AI Development Platform</p>
+          </div>
         </div>
       </SidebarHeader>
-
+      
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-slate-400">Main</SidebarGroupLabel>
+          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url} className="flex items-center gap-3">
+              {navigation.map((item) => (
+                <SidebarMenuItem key={item.name}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={location.pathname === item.href}
+                  >
+                    <Link to={item.href}>
                       <item.icon className="w-4 h-4" />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-slate-400">Tools</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {toolsItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url} className="flex items-center gap-3">
-                      <item.icon className="w-4 h-4" />
-                      <span>{item.title}</span>
-                    </a>
+                      <span>{item.name}</span>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -127,11 +85,11 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4">
-        <div className="text-xs text-slate-400">
-          CodeXI Platform v1.0
+      <SidebarFooter>
+        <div className="px-4 py-2 text-xs text-muted-foreground">
+          Version 2.0.0
         </div>
       </SidebarFooter>
     </Sidebar>
   );
-}
+};
