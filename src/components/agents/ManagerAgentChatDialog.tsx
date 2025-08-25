@@ -30,6 +30,14 @@ interface ManagerAgentChatDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+// Extend HTMLInputElement to include webkitdirectory
+declare module 'react' {
+  interface InputHTMLAttributes<T> extends AriaAttributes, DOMAttributes<T> {
+    webkitdirectory?: string;
+    directory?: string;
+  }
+}
+
 const ManagerAgentChatDialog: React.FC<ManagerAgentChatDialogProps> = ({
   open,
   onOpenChange,
@@ -70,9 +78,19 @@ const ManagerAgentChatDialog: React.FC<ManagerAgentChatDialogProps> = ({
         .eq('is_active', true);
 
       if (error) throw error;
-      setLLMProviders(data || []);
-      if (data && data.length > 0) {
-        setSelectedProvider(data[0].id);
+      
+      // Transform the data to match our interface
+      const transformedProviders: LLMProvider[] = (data || []).map(provider => ({
+        id: provider.id,
+        provider_name: provider.provider_name,
+        selected_models: Array.isArray(provider.selected_models) 
+          ? provider.selected_models as string[]
+          : []
+      }));
+      
+      setLLMProviders(transformedProviders);
+      if (transformedProviders.length > 0) {
+        setSelectedProvider(transformedProviders[0].id);
       }
     } catch (error) {
       console.error('Error fetching LLM providers:', error);
@@ -89,15 +107,14 @@ const ManagerAgentChatDialog: React.FC<ManagerAgentChatDialogProps> = ({
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) return;
 
-      // Create new project for this chat session
+      // Create new project for this chat session using valid project type
       const { data: project, error: projectError } = await supabase
         .from('projects')
         .insert({
           name: `Chat Session ${new Date().toLocaleDateString()}`,
-          type: 'chat',
+          type: 'data', // Using valid enum value instead of 'chat'
           owner_id: user.user.id,
-          description: 'Manager Agent Chat Session',
-          status: 'active'
+          description: 'Manager Agent Chat Session'
         })
         .select()
         .single();

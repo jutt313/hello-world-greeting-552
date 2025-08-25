@@ -65,10 +65,9 @@ export const useEnhancedManagerChat = () => {
         .from('projects')
         .insert({
           name: `Manager Chat Session - ${new Date().toLocaleDateString()}`,
-          type: 'chat',
+          type: 'data', // Using valid enum value
           owner_id: user.user.id,
-          description: 'Project created for Manager Agent chat session',
-          status: 'active'
+          description: 'Project created for Manager Agent chat session'
         })
         .select('id')
         .single();
@@ -95,7 +94,16 @@ export const useEnhancedManagerChat = () => {
         .eq('is_active', true);
 
       if (error) throw error;
-      return data || [];
+      
+      // Transform the data to match our interface
+      return (data || []).map(provider => ({
+        id: provider.id,
+        provider_name: provider.provider_name,
+        selected_models: Array.isArray(provider.selected_models) 
+          ? provider.selected_models as string[]
+          : [],
+        cost_per_1k_tokens: provider.cost_per_1k_tokens || 0.002
+      }));
 
     } catch (error) {
       console.error('Error fetching LLM providers:', error);
