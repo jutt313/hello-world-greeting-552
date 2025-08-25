@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -95,12 +94,18 @@ const ManagerAgentChatDialog: React.FC<ManagerAgentChatDialogProps> = ({
 
   const fetchLLMProviders = async () => {
     try {
+      console.log('Fetching LLM providers...');
       const { data, error } = await supabase
         .from('llm_providers')
         .select('id, provider_name, selected_models')
         .eq('is_active', true);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching LLM providers:', error);
+        throw error;
+      }
+      
+      console.log('LLM providers fetched:', data);
       
       const transformedProviders: LLMProvider[] = (data || []).map(provider => ({
         id: provider.id,
@@ -113,6 +118,14 @@ const ManagerAgentChatDialog: React.FC<ManagerAgentChatDialogProps> = ({
       setLLMProviders(transformedProviders);
       if (transformedProviders.length > 0) {
         setSelectedProvider(transformedProviders[0].id);
+        console.log('Selected provider:', transformedProviders[0].provider_name);
+      } else {
+        console.warn('No active LLM providers found');
+        toast({
+          title: 'No LLM Providers',
+          description: 'Please configure at least one LLM provider to use the chat.',
+          variant: 'destructive',
+        });
       }
     } catch (error) {
       console.error('Error fetching LLM providers:', error);
@@ -126,8 +139,19 @@ const ManagerAgentChatDialog: React.FC<ManagerAgentChatDialogProps> = ({
 
   const createNewChatSession = async () => {
     try {
+      console.log('Creating new chat session...');
       const { data: user } = await supabase.auth.getUser();
-      if (!user.user) return;
+      if (!user.user) {
+        console.error('User not authenticated');
+        toast({
+          title: 'Authentication Required',
+          description: 'Please sign in to use the chat functionality.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      console.log('User authenticated:', user.user.email);
 
       // Create new project for this chat session
       const { data: project, error: projectError } = await supabase
@@ -141,7 +165,12 @@ const ManagerAgentChatDialog: React.FC<ManagerAgentChatDialogProps> = ({
         .select()
         .single();
 
-      if (projectError) throw projectError;
+      if (projectError) {
+        console.error('Error creating project:', projectError);
+        throw projectError;
+      }
+      
+      console.log('Project created:', project.id);
       setCurrentProjectId(project.id);
 
       // Create chat session
@@ -156,7 +185,12 @@ const ManagerAgentChatDialog: React.FC<ManagerAgentChatDialogProps> = ({
         .select()
         .single();
 
-      if (sessionError) throw sessionError;
+      if (sessionError) {
+        console.error('Error creating chat session:', sessionError);
+        throw sessionError;
+      }
+
+      console.log('Chat session created:', session.id);
       setCurrentSessionId(session.id);
 
     } catch (error) {
@@ -207,12 +241,16 @@ const ManagerAgentChatDialog: React.FC<ManagerAgentChatDialogProps> = ({
     const newFiles: UploadedFile[] = [];
 
     try {
+      console.log(`Uploading ${fileArray.length} files...`);
+      
       for (const file of fileArray) {
         const content = await file.text();
         const language = detectLanguage(file.name);
         
+        console.log(`Processing file: ${file.name} (${language})`);
+        
         // Store in database
-        await supabase
+        const { error } = await supabase
           .from('agent_file_operations')
           .insert({
             agent_id: '22222222-2222-2222-2222-222222222222',
@@ -224,6 +262,11 @@ const ManagerAgentChatDialog: React.FC<ManagerAgentChatDialogProps> = ({
             programming_language: language,
             framework: 'User Upload'
           });
+
+        if (error) {
+          console.error('Error storing file:', file.name, error);
+          throw error;
+        }
 
         newFiles.push({
           name: file.name,
@@ -237,6 +280,7 @@ const ManagerAgentChatDialog: React.FC<ManagerAgentChatDialogProps> = ({
       setUploadedFiles(prev => [...prev, ...newFiles]);
       setContextType('files');
 
+      console.log(`Successfully uploaded ${fileArray.length} files`);
       toast({
         title: 'Files Uploaded',
         description: `${fileArray.length} files uploaded successfully`,
@@ -269,39 +313,40 @@ const ManagerAgentChatDialog: React.FC<ManagerAgentChatDialogProps> = ({
 
     try {
       setIsCloning(true);
+      console.log('Connecting to repository:', gitRepoUrl);
       
-      const response = await fetch('https://akoclehzeocqlgmmbkza.supabase.co/functions/v1/github-clone', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFrb2NsZWh6ZW9jcWxnbW1ia3phIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1MjQxMDEsImV4cCI6MjA3MTEwMDEwMX0.XzDI8r_JkwUADi8pcev3irYSMWlCWEKkC0w5UWNX5zk`,
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('github-clone', {
+        body: {
           repositoryUrl: gitRepoUrl,
           projectId: currentProjectId,
           sessionId: Date.now().toString()
-        }),
+        }
       });
 
-      const result = await response.json();
+      if (error) {
+        console.error('GitHub clone function error:', error);
+        throw error;
+      }
 
-      if (result.success && result.repository) {
+      console.log('GitHub clone response:', data);
+
+      if (data.success && data.repository) {
         setRepository({
-          name: result.repository.name,
-          url: result.repository.url,
-          branch: result.repository.branch,
-          filesCount: result.repository.filesCount,
-          files: result.files || []
+          name: data.repository.name,
+          url: data.repository.url,
+          branch: data.repository.branch,
+          filesCount: data.repository.filesCount,
+          files: data.files || []
         });
         setContextType('repository');
         
         toast({
           title: 'Repository Connected',
-          description: `Successfully cloned ${result.repository.name}`,
+          description: `Successfully cloned ${data.repository.name}`,
         });
         setGitRepoUrl('');
       } else {
-        throw new Error(result.error || 'Failed to clone repository');
+        throw new Error(data.error || 'Failed to clone repository');
       }
 
     } catch (error) {
@@ -342,7 +387,14 @@ const ManagerAgentChatDialog: React.FC<ManagerAgentChatDialogProps> = ({
   };
 
   const sendMessage = async () => {
-    if (!inputMessage.trim() || !currentSessionId || !selectedProvider) return;
+    if (!inputMessage.trim() || !currentSessionId || !selectedProvider) {
+      console.warn('Cannot send message: missing requirements', {
+        hasMessage: !!inputMessage.trim(),
+        hasSession: !!currentSessionId,
+        hasProvider: !!selectedProvider
+      });
+      return;
+    }
 
     setIsLoading(true);
     const userMessage = inputMessage.trim();
@@ -358,21 +410,31 @@ const ManagerAgentChatDialog: React.FC<ManagerAgentChatDialogProps> = ({
     setMessages(prev => [...prev, tempUserMessage]);
 
     try {
+      console.log('Sending message to Manager Agent...');
       const { data: user } = await supabase.auth.getUser();
-      if (!user.user) throw new Error('User not authenticated');
+      if (!user.user) {
+        console.error('User not authenticated');
+        throw new Error('User not authenticated');
+      }
 
       const provider = llmProviders.find(p => p.id === selectedProvider);
-      if (!provider) throw new Error('No LLM provider selected');
+      if (!provider) {
+        console.error('No LLM provider selected or found');
+        throw new Error('No LLM provider selected');
+      }
 
       const hasContext = contextType !== 'none';
+      
+      console.log('Invoking manager-agent-execution with:', {
+        provider: provider.provider_name,
+        hasContext,
+        contextType,
+        filesCount: uploadedFiles.length,
+        repositoryName: repository?.name
+      });
 
-      const response = await fetch('https://akoclehzeocqlgmmbkza.supabase.co/functions/v1/manager-agent-execution', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFrb2NsZWh6ZW9jcWxnbW1ia3phIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1MjQxMDEsImV4cCI6MjA3MTEwMDEwMX0.XzDI8r_JkwUADi8pcev3irYSMWlCWEKkC0w5UWNX5zk`,
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('manager-agent-execution', {
+        body: {
           action: 'chat',
           user_id: user.user.id,
           project_id: currentProjectId,
@@ -384,22 +446,30 @@ const ManagerAgentChatDialog: React.FC<ManagerAgentChatDialogProps> = ({
           context_type: contextType,
           files_count: uploadedFiles.length,
           repository_name: repository?.name || null
-        }),
+        }
       });
 
-      const result = await response.json();
+      if (error) {
+        console.error('Supabase function invoke error:', error);
+        throw error;
+      }
 
-      if (result.success) {
+      console.log('Manager Agent response:', data);
+
+      if (data.success) {
         // Remove temp message and fetch updated messages
         setMessages(prev => prev.filter(msg => msg.id !== tempUserMessage.id));
         
-        const { data: updatedMessages, error } = await supabase
+        const { data: updatedMessages, error: messagesError } = await supabase
           .from('chat_messages')
           .select('*')
           .eq('session_id', currentSessionId)
           .order('created_at', { ascending: true });
 
-        if (!error && updatedMessages) {
+        if (messagesError) {
+          console.error('Error fetching updated messages:', messagesError);
+        } else if (updatedMessages) {
+          console.log('Updated messages fetched:', updatedMessages.length);
           setMessages(updatedMessages.map(msg => ({
             id: msg.id,
             content: msg.content,
@@ -412,11 +482,12 @@ const ManagerAgentChatDialog: React.FC<ManagerAgentChatDialogProps> = ({
 
         toast({
           title: 'Message Sent',
-          description: `Tokens: ${result.tokens_used || 0}, Cost: $${(result.cost || 0).toFixed(4)}`,
+          description: `Tokens: ${data.tokens_used || 0}, Cost: $${(data.cost || 0).toFixed(4)}`,
         });
 
       } else {
-        throw new Error(result.error || 'Failed to get response');
+        console.error('Manager Agent returned error:', data.error);
+        throw new Error(data.error || 'Failed to get response');
       }
 
     } catch (error) {
@@ -554,6 +625,11 @@ const ManagerAgentChatDialog: React.FC<ManagerAgentChatDialogProps> = ({
                   <p className="text-sm">
                     Upload your project files or connect a Git repository, then start chatting with your AI Manager!
                   </p>
+                  {llmProviders.length === 0 && (
+                    <p className="text-sm text-destructive mt-2">
+                      Please configure at least one LLM provider to start chatting.
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -634,12 +710,12 @@ const ManagerAgentChatDialog: React.FC<ManagerAgentChatDialogProps> = ({
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Ask your Manager Agent anything about your project..."
-              disabled={isLoading || !selectedProvider}
+              disabled={isLoading || !selectedProvider || llmProviders.length === 0}
               className="flex-1"
             />
             <Button 
               onClick={sendMessage} 
-              disabled={!inputMessage.trim() || isLoading || !selectedProvider}
+              disabled={!inputMessage.trim() || isLoading || !selectedProvider || llmProviders.length === 0}
               size="icon"
             >
               {isLoading ? (
