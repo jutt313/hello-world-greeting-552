@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { User, Settings, FileText, MessageCircle, LogOut, ChevronDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,11 +20,31 @@ const ProfileDropdown = () => {
   };
 
   const menuItems = [
-    { icon: MessageCircle, label: 'Chat with Manager', action: handleChatWithManager },
-    { icon: Settings, label: 'LLM Providers', action: () => console.log('LLM Providers') },
-    { icon: FileText, label: 'Documentation', action: () => console.log('Documentation') },
-    { icon: Settings, label: 'Settings', action: () => console.log('Settings') },
-    { icon: LogOut, label: 'Sign Out', action: handleSignOut },
+    { 
+      icon: MessageCircle, 
+      label: 'Chat with Manager', 
+      action: handleChatWithManager 
+    },
+    { 
+      icon: Settings, 
+      label: 'LLM Providers', 
+      action: () => console.log('LLM Providers') 
+    },
+    { 
+      icon: FileText, 
+      label: 'Documentation', 
+      action: () => console.log('Documentation') 
+    },
+    { 
+      icon: Settings, 
+      label: 'Settings', 
+      action: () => console.log('Settings') 
+    },
+    { 
+      icon: LogOut, 
+      label: 'Sign Out', 
+      action: handleSignOut 
+    },
   ];
 
   return (
@@ -69,3 +88,4 @@ const ProfileDropdown = () => {
 };
 
 export default ProfileDropdown;
+
