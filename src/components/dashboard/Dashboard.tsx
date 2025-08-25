@@ -1,6 +1,5 @@
-
 import React, { useState } from "react";
-import { Bell, User, ChevronDown } from "lucide-react";
+import { Bell, User, ChevronDown, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MetricCards } from "@/components/dashboard/MetricCards";
 import { ChartsSection } from "@/components/dashboard/ChartsSection";
@@ -14,6 +13,7 @@ import TeamPopup from "@/components/popups/TeamPopup";
 import NotificationsPopup from "@/components/popups/NotificationsPopup";
 import { CLISection } from "@/components/dashboard/CLISection";
 import { TraditionalTerminal } from "@/components/terminal/TraditionalTerminal";
+import ManagerAgentChatDialog from "@/components/agents/ManagerAgentChatDialog";
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 
@@ -28,6 +28,7 @@ const Dashboard = () => {
   const [agentOverviewOpen, setAgentOverviewOpen] = useState(false);
   const [cliTerminalOpen, setCLITerminalOpen] = useState(false);
   const [traditionalTerminalOpen, setTraditionalTerminalOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -35,7 +36,13 @@ const Dashboard = () => {
     navigate('/auth');
   };
 
+  const handleChatWithManager = () => {
+    setChatOpen(true);
+    setProfileDropdownOpen(false);
+  };
+
   const menuItems = [
+    { icon: MessageCircle, label: 'Chat with Manager', action: handleChatWithManager },
     { label: 'Agent Overview', action: () => setAgentOverviewOpen(true) },
     { label: 'CLI Terminal', action: () => setCLITerminalOpen(true) },
     { label: 'Web Terminal', action: () => setTraditionalTerminalOpen(true) },
@@ -115,6 +122,12 @@ const Dashboard = () => {
         <NotificationsPopup 
           isOpen={notificationsOpen} 
           onClose={() => setNotificationsOpen(false)} 
+        />
+
+        {/* Manager Agent Chat Dialog */}
+        <ManagerAgentChatDialog
+          open={chatOpen}
+          onOpenChange={setChatOpen}
         />
 
         {/* Agent Overview Popup */}
@@ -212,6 +225,7 @@ const Dashboard = () => {
                 }}
                 className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-accent hover:text-accent-foreground transition-colors first:rounded-t-lg last:rounded-b-lg"
               >
+                {item.icon && <item.icon className="w-4 h-4" />}
                 <span className="text-sm">{item.label}</span>
               </button>
             ))}
